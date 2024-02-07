@@ -1,3 +1,10 @@
 -arg -w -arg -notation-overridden
 
-robbins.v
+-I .
+-R . rfac
+
+moreR.v
+slater.v
+nfracR.v
+
+
