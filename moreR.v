@@ -188,14 +188,13 @@ Proof. move=> rNZ; rewrite fracN //; have := frac_bound r; lra. Qed.
 Lemma fracNZ_N r : `{-r} <> 0 -> `{r} <> 0.
 Proof. rewrite -{2}[r]Ropp_involutive; exact: fracN_NZ. Qed.
   
-Lemma frac_inv_gt_1 r : `{r} <> 0 -> 1 < 1 / `{r}.
+Lemma frac_inv_gt_1 r : `{r} <> 0 -> 1 < / `{r}.
 Proof.
 have F1 := frac_bound r => Dr.
-rewrite -{1}Rinv_1 /Rdiv Rmult_1_l.
-apply: Rinv_lt_contravar; lra.
+by rewrite -{1}Rinv_1; apply: Rinv_lt_contravar; lra.
 Qed.
 
-Lemma frac_inv_floor_ge_1 r : `{r} <> 0 -> (1 <= `[1 / `{r}])%Z.
+Lemma frac_inv_floor_ge_1 r : `{r} <> 0 -> (1 <= `[/ `{r}])%Z.
 Proof.
 move=> Dr.
 rewrite -{1}(ZfloorZ 1); apply: Zfloor_le => /=.
@@ -275,4 +274,40 @@ Proof.
 move=> bP aLbc.
 apply: Rmult_lt_reg_r (bP) _.
 rewrite Rmult_assoc Rinv_l; nra.
+Qed.
+
+(******************************************************************************)
+(*                               Irrational                                   *)
+(******************************************************************************)
+
+Definition irrational r := forall p q : Z, IZR p / IZR q <> r.
+
+Lemma irrational_inv r : irrational r -> irrational (/ r).
+Proof.
+move=> rI p q pqE; have [] := rI q p.
+by rewrite -[RHS]Rinv_inv -pqE Rinv_div.
+Qed.
+
+Lemma irrational_frac r : irrational r -> irrational `{ r}.
+Proof.
+move=> rI p q pqE.
+have rE : r = `[r] + `{r} by rewrite /frac_part; lra.
+have [q_eq0| q_neq0] := Req_dec q 0.
+  have [] := rI `[r] 1%Z.
+  by rewrite {2}rE -pqE q_eq0 Rdiv_0_r; lra.
+have [] := rI (`[r] * q + p)%Z q.
+rewrite {2}rE plus_IZR mult_IZR Rdiv_plus_distr pqE.
+by field.
+Qed.
+
+Lemma irrational_frac_rev r : irrational `{ r} -> irrational r.
+Proof.
+move=> rI p q pqE.
+have rE : r = `[r] + `{r} by rewrite /frac_part; lra.
+have [q_eq0| q_neq0] := Req_dec q 0.
+  have [] := rI 0%Z 1%Z.
+  by rewrite -pqE q_eq0 Rdiv_0_r Rdiv_0_l fracZ.
+have [] := rI (- `[r] * q + p)%Z q.
+rewrite plus_IZR mult_IZR opp_IZR Rdiv_plus_distr pqE {2}rE.
+by field.
 Qed.

@@ -12,7 +12,7 @@ if n is n1.+1 then
    if n1 is _.+1 then
        let d := `{r} in
        if Req_EM_T d 0 then (0%Z, `[r], 1%Z)
-       else let: (a,p,q) := approx n1 (1/d) in
+       else let: (a,p,q) := approx n1 (/ d) in
             (a,`[r] * p + q, p)%Z
     else (`[r], `[r], 1%Z)
 else (0%Z, 1%Z , 0%Z).
@@ -21,7 +21,7 @@ else (0%Z, 1%Z , 0%Z).
 Lemma approxE n r : approx n.+2 r =
        let d := `{r} in
        if Req_EM_T d 0 then (0%Z, `[r], 1%Z)
-       else let: (a,p,q) := approx n.+1 (1/d) in
+       else let: (a,p,q) := approx n.+1 (/ d) in
             (a,`[r] * p + q, p)%Z.
 Proof. by []. Qed.
 
@@ -41,7 +41,7 @@ Proof. by []. Qed.
 Lemma eltE_z r n : `{r} = 0 -> 'a[r]_ n.+2 = 0%Z.
 Proof. by rewrite /elt approxE; lazy zeta; case: Req_EM_T. Qed.
 
-Lemma eltE n r : `{r} <> 0 ->  ('a[r]_n.+2 = 'a[1/`{r}]_n.+1)%Z.
+Lemma eltE n r : `{r} <> 0 ->  ('a[r]_n.+2 = 'a[/ `{r}]_n.+1)%Z.
 Proof.
 rewrite /elt approxE.
 by lazy zeta; case: approx => [[a p] q]; case: Req_EM_T => //=.
@@ -69,7 +69,7 @@ Proof.
 elim: n r => [r|n IH r].
   case: (Req_EM_T `{r} 0) => H; first by rewrite !eltE_z.
   rewrite !(eltE _ r) // elt_1.
-  case: (Req_EM_T `{1 / `{r}} 0) => H1.
+  case: (Req_EM_T `{/ `{r}} 0) => H1.
     have F1 := frac_inv_gt_1 _ H => _ HH.
     rewrite {1}/frac_part HH /= in H1; lra.
   rewrite eltE // elt_1.
@@ -98,6 +98,28 @@ case: m => // [[|m]] // /andP[_]; case: n => // [[|n]] //=.
 rewrite !ltnS => /subnKC<-; rewrite addnC.
 elim: (n - m)%N {-2}m => // k IH m1 /elt_eq_0_next.
 by rewrite addSnnS; exact: IH.
+Qed.
+
+Lemma irrational_IZR z : ~ (irrational (IZR z)).
+Proof. by move=> /(_ z 1%Z) []; field. Qed.
+
+Lemma irrational_elt_neq_0 r n : irrational r -> 'a[r]_ n.+2 <> 0%Z.
+Proof.
+move=> Hr.
+have fr_neq_0 : `{r} <> 0.
+  move=> frE.
+  by case: (irrational_IZR 0); rewrite -frE; apply: irrational_frac.
+elim: n r Hr fr_neq_0 => [|n IH] r Hr fr_neq_0; rewrite eltE //.
+  rewrite elt_1.
+  have frB : 0 < `{r} <= 1 by have := frac_bound r; lra.
+  have ifrB : 1 <= / `{r}.
+    by rewrite -Rinv_1; apply: Rinv_le_contravar; lra.
+  suff : (1 <= `[ / `{ r}])%Z by lia.
+  by apply: Zfloor_lub.
+apply: IH; first by apply/irrational_inv/irrational_frac.
+move=> ir_eq0.
+case: (irrational_IZR 0); rewrite -ir_eq0.
+by apply/irrational_frac/irrational_inv/irrational_frac.
 Qed.
 
 (* Numerator of the convergent *)
@@ -139,7 +161,7 @@ case: n => [|n] Dr; first by rewrite denom_1.
 by rewrite /denom approxE; lazy zeta; case: Req_EM_T.
 Qed.
 
-Lemma denomE n r : `{r} <> 0 -> 'q[r]_n.+1 = 'p[1/`{r}]_n.
+Lemma denomE n r : `{r} <> 0 -> 'q[r]_n.+1 = 'p[/ `{r}]_n.
 Proof.
 case: n => [|n]; first by rewrite denom_1 num_0.
 rewrite /denom /num approxE.
@@ -148,7 +170,7 @@ by case: Req_EM_T => //=.
 Qed.
 
 Lemma numE n r : `{r} <> 0 -> 
-  ('p[r]_n.+1 = `[r] * 'p[1/`{r}]_n + 'q[1/`{r}]_n)%Z.
+  ('p[r]_n.+1 = `[r] * 'p[/ `{r}]_n + 'q[/ `{r}]_n)%Z.
 Proof.
 case: n => [|n] Dr; first by rewrite num_1 num_0 denom_0; lia.
 rewrite /denom /num /elt approxE.
@@ -164,7 +186,7 @@ elim: n r => [r rP |[|n] IH r rP]; first by rewrite num_0 denom_0; lia.
 have F : (0 <= `[r])%Z by rewrite -(ZfloorZ 0); exact: Zfloor_le.
 case: (Req_EM_T `{r} 0) => H; first by rewrite numE_z // denomE_z //; lia.
 rewrite denomE // numE //.
-suff /IH : 0 <= 1 / `{r} by nia.
+suff /IH : 0 <= / `{r} by nia.
 have /frac_inv_gt_1 := H; by lra.
 Qed.
 
@@ -180,7 +202,7 @@ elim: n r => [r rP |[|n] IH r rP].
 have F : (1 <= `[r])%Z by rewrite -(ZfloorZ 1); apply: Zfloor_le => /=; lra.
 case: (Req_EM_T `{r} 0) => H; first by rewrite numE_z // denomE_z //; lia.
 rewrite denomE // numE //.
-suff /IH : 1 <= 1 / `{r} by nia.
+suff /IH : 1 <= / `{r} by nia.
 have /frac_inv_gt_1 := H; by lra.
 Qed.
 
@@ -197,7 +219,7 @@ case: n => [|[|n eP]]; first by rewrite num_0.
   by rewrite elt_1 num_1; lia.
 case: (Req_EM_T `{r} 0) => H; first by move: eP; rewrite eltE_z // => [[]].
 rewrite numE //.
-have /(approx_spos n) : 1 <= 1 / `{r}.
+have /(approx_spos n) : 1 <= / `{r}.
   by have /frac_inv_gt_1 := H; by lra.
 suff : (0 <= `[r])%Z by nia.
 by rewrite -(ZfloorZ 0); apply: Zfloor_le => /=; lra.
@@ -209,9 +231,8 @@ move=> rP rD.
 have rrP : (0 <= `[r])%Z.
   by rewrite -(ZfloorZ 0); apply: Zfloor_le => /=; lra.
 rewrite numE //.
-have /(approx_spos n) : 1 <= 1 / `{r}.
-  by have /frac_inv_gt_1 := rD; by lra.
-nia.
+suff /(approx_spos n) : 1 <= / `{r} by nia.
+by have /frac_inv_gt_1 := rD; by lra.
 Qed.
 
 Lemma denom_spos n r : (0 < 'q[r]_ n.+1)%Z.
@@ -219,7 +240,7 @@ Proof.
 case: n => [|n]; first by rewrite denom_1.
 case: (Req_EM_T `{r} 0) => H; first by rewrite denomE_z.
 rewrite denomE //.
-suff /(approx_spos n) : 1 <= 1 / `{r} by nia.
+suff /(approx_spos n) : 1 <= / `{r} by nia.
 have /frac_inv_gt_1 := H; by lra.
 Qed.
 
@@ -247,8 +268,8 @@ Lemma denom_id n r : 'a[r]_ n.+2 = 0%Z -> 'q[r]_ n.+2 ='q[r]_ n.+1.
 Proof. by move=> /num_denom_id[]. Qed.
 
 Lemma num_denom_rec n r : 'a[r]_ n.+2 <> 0%Z ->
- ('p[r]_n.+2 = 'a[r]_ n.+2 * 'p[r]_n.+1 + 'p[r]_n)%Z /\
- ('q[r]_n.+2 = 'a[r]_ n.+2 * 'q[r]_n.+1 + 'q[r]_n)%Z.
+  ('p[r]_n.+2 = 'a[r]_ n.+2 * 'p[r]_n.+1 + 'p[r]_n)%Z /\
+  ('q[r]_n.+2 = 'a[r]_ n.+2 * 'q[r]_n.+1 + 'q[r]_n)%Z.
 Proof.
 elim: n r => [r |n IH r].
   case: (Req_EM_T `{r} 0) => [H|H _]; first by rewrite !eltE_z.
@@ -304,6 +325,11 @@ case: (Req_EM_T `{r} 0) => H; first by move: aR; rewrite eltE_z.
 have := denom_spos n r; have := denom_spos n.+1 r; have := elt_pos r n.+1.
 by nia.
 Qed.
+
+Lemma irrational_denom_lt n r : irrational r -> ('q[r]_n.+2 < 'q[r]_n.+3)%Z.
+Proof.
+move=> rI; apply: denom_lt; first by apply: irrational_elt_neq_0.
+by lia.
 
 Lemma denom_le n r : ('q[r]_n <= 'q[r]_n.+1)%Z.
 Proof.
@@ -372,12 +398,11 @@ rewrite /frac_part => fR.
 by rewrite /halton numE_z // denomE_z //=; psatz R 3.
 Qed.
 
-Lemma haltonE r n : `{r} <> 0 -> 't[r]_ n.+1 = `{r} * 't[1 / `{r} ]_ n.
+Lemma haltonE r n : `{r} <> 0 -> 't[r]_ n.+1 = `{r} * 't[/ `{r} ]_ n.
 Proof.
 move=> Dr.
 rewrite /halton numE // denomE //= plus_IZR mult_IZR.
-move: Dr; rewrite /frac_part => HH.
-by field.
+by move: Dr; rewrite /frac_part => HH; field.
 Qed.
 
 Lemma halton_rec r n : 'a[r]_n.+2 <> 0%Z -> 
@@ -393,7 +418,7 @@ Proof.
 elim: n r => [r|n IH r].
   case: (Req_EM_T `{r} 0) => [H /=|H]; first by rewrite haltonE_z.
   rewrite eltE // elt_1.
-  have F1 := frac_inv_floor_ge_1 _ H; lia.
+  by have F1 := frac_inv_floor_ge_1 _ H; lia.
 case: (Req_EM_T `{r} 0) => [H _ /=|H]; first by rewrite haltonE_z.
 by rewrite haltonE // eltE // => /IH ->; lra.
 Qed.
@@ -575,9 +600,9 @@ rewrite halton_rec ?aD // halton_0 halton_1 denom_1 !Rmult_1_l.
 case: (Req_EM_T `{r} 0) => H; first by move: aD; rewrite eltE_z.
 suff: 1 - `{r} < `{r} by rewrite /Rmod1 /Rmin; case: Rle_dec; lra.
 move: aD; rewrite eltE // elt_1 => aD.
-have := Zfloor_bound (1 / `{r}); rewrite aD /= => [[_ aF]].
+have := Zfloor_bound (/ `{r}); rewrite aD /= => [[_ aF]].
 have /Rmult_lt_compat_r/(_ aF) : 0 < `{r} by have := frac_bound r; lra.
-have ->: 1 / `{r} * `{r} = 1 by field.
+have ->: / `{r} * `{r} = 1 by field.
 by lra.
 Qed.
 
