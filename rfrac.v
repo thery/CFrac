@@ -1,5 +1,6 @@
 Require Import Reals Psatz.
-From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun fintype bigop.
+From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun. 
+From mathcomp Require Import fintype bigop seq.
 Require Import Zpower moreR.
 
 Open Scope R_scope.
@@ -100,9 +101,6 @@ elim: (n - m)%N {-2}m => // k IH m1 /elt_eq_0_next.
 by rewrite addSnnS; exact: IH.
 Qed.
 
-Lemma irrational_IZR z : ~ (irrational (IZR z)).
-Proof. by move=> /(_ z 1%Z) []; field. Qed.
-
 Lemma irrational_elt_neq_0 r n : irrational r -> 'a[r]_ n.+2 <> 0%Z.
 Proof.
 move=> Hr.
@@ -122,7 +120,40 @@ case: (irrational_IZR 0); rewrite -ir_eq0.
 by apply/irrational_frac/irrational_inv/irrational_frac.
 Qed.
 
+Lemma sqrt5B : 2 <  sqrt 5 < 3.
+Proof.
+have -> : 2 = sqrt (2 * 2) by rewrite sqrt_square; lra.
+have -> : 3 = sqrt (3 * 3) by rewrite sqrt_square; lra.
+by split; apply: sqrt_lt_1; lra.
+Qed.
+
+Lemma grB : 1 <  gr < 2.
+Proof. by rewrite /gr; have := sqrt5B; lra. Qed.
+
+Lemma floor_grE : `[gr] = 1%Z.
+Proof. by apply: Zfloor_eq; have := grB; lra. Qed.
+
+Lemma fract_grE : `{gr} = (sqrt 5 - 1) / 2.
+Proof. by rewrite /frac_part floor_grE /gr; lra. Qed.
+
+Lemma fract_gr_revE : / `{gr} = gr.
+Proof.
+rewrite fract_grE /gr Rinv_div -(Rdiv_mult_r_r gr); last by have := grB; lra.
+rewrite -/gr.
+suff -> : (sqrt 5 - 1) * gr = 2 by lra.
+suff -> : 2 = ((sqrt 5 * sqrt 5) - 1) / 2 by rewrite /gr; lra.
+by rewrite sqrt_sqrt; lra.
+Qed.
+
+Lemma gr_elt n : (0 < n)%nat -> 'a[gr]_ n = 1%Z.
+Proof.
+elim: n => //= [] [|n] IH _; first by rewrite elt_1 floor_grE.
+rewrite eltE ?fract_gr_revE //; first by apply: IH.
+by rewrite fract_grE; have := sqrt5B; lra.
+Qed.
+
 (* Numerator of the convergent *)
+
 
 Definition num r n := 
   let: (a, p, q) := approx n r in p.
@@ -356,15 +387,27 @@ Fixpoint mko_list (r : R) (n : nat) (v : Z) : list Z :=
     (v / 'q[r]_n)%Z :: mko_list r n1 (v mod 'q[r]_n)%Z
   else nil.
   
-Lemma bostroP r n : irrational r -> (Z.of_nat n < 'q[r]_(bostro r n))%Z.
+Definition ostro r n i := 
+  nth 0%Z (mko_list r (bostro r n) (Z.of_nat n)) (bostro r n - i).
+
+Lemma bostroP r n : 
+  irrational r -> 
+  ('q[r]_((bostro r n).-1) <= Z.of_nat n < 'q[r]_(bostro r n))%Z.
 Proof.
 move=> iR.  
 rewrite /bostro; case: arg_minnP => /=; last first.
-  by move=> i /eqP Hi _; apply/Zlt_is_lt_bool.
+  move=> i /eqP Hi Hf; split; last by apply/Zlt_is_lt_bool.
+  have i1B : (i.-1 < n.+4)%nat.
+  apply: leq_ltn_trans (leq_pred _) (ltn_ord i).
+  have /= := Hf (Ordinal i1B).
+  case: Z.ltb_spec => //Hi1 Hi2.
+  have : (i <= i.-1)%nat by apply: Hi2.
+  case: (i : nat) => [| k] /=; first by rewrite denom_0; lia.
+  by rewrite ltnn.
 suff : (Z.of_nat n < 'q[r]_n.+3)%Z by case: Z.ltb_spec => //=; lia.
 apply: Z.le_lt_trans (irrational_denom_lbound _ _ iR) _.
 apply: Z.le_lt_trans (irrational_denom_lt _ _ iR).
-apply: denom_le.
+by apply: denom_le.
 Qed.
 
 Lemma denom_2_eq_1 r : ('a[r]_ 2 <= 1 -> 'q[r]_2 = 1)%Z.

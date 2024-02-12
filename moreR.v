@@ -385,6 +385,9 @@ rewrite -xyE xE yE !mult_IZR; field.
 apply: not_0_IZR; lia.
 Qed.
 
+Lemma irrational_IZR z : ~ (irrational (IZR z)).
+Proof. by move=> /(_ z 1%Z) []; field. Qed.
+
 (* Golden Ration                                                              *)
 Definition gr := (1 + sqrt 5) / 2.
 
