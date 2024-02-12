@@ -330,6 +330,7 @@ Lemma irrational_denom_lt n r : irrational r -> ('q[r]_n.+2 < 'q[r]_n.+3)%Z.
 Proof.
 move=> rI; apply: denom_lt; first by apply: irrational_elt_neq_0.
 by lia.
+Qed.
 
 Lemma denom_le n r : ('q[r]_n <= 'q[r]_n.+1)%Z.
 Proof.
@@ -337,6 +338,33 @@ case: n => [|n]; first by rewrite denom_0 denom_1.
 have [aZ|] := (Z.eq_dec ('a[r]_n.+2) 0%Z); first by rewrite denom_id; lia.
 case: n => [aD|n aD]; last by apply/Z.lt_le_incl/denom_lt; lia.
 by rewrite denom_rec // denom_1 denom_0; have := elt_pos r 0; lia.
+Qed.
+
+Lemma irrational_denom_lbound n r :
+  irrational r -> (Z.of_nat n <= 'q[r]_n.+1)%Z.
+Proof.
+move=> rI; elim: n => [|[|n]IH]; first by rewrite /= denom_1; lia.
+- by rewrite /= -(denom_1 r); apply: denom_le.
+have := irrational_denom_lt n _ rI; lia.
+Qed.
+
+Definition bostro r (n : nat) : nat := 
+ [arg min_(i < ord_max | (Z.of_nat n <? 'q[r]_(i: 'I_(n.+4)))%Z == true) i].
+
+Fixpoint mko_list (r : R) (n : nat) (v : Z) : list Z :=
+  if n is n1.+1 then
+    (v / 'q[r]_n)%Z :: mko_list r n1 (v mod 'q[r]_n)%Z
+  else nil.
+  
+Lemma bostroP r n : irrational r -> (Z.of_nat n < 'q[r]_(bostro r n))%Z.
+Proof.
+move=> iR.  
+rewrite /bostro; case: arg_minnP => /=; last first.
+  by move=> i /eqP Hi _; apply/Zlt_is_lt_bool.
+suff : (Z.of_nat n < 'q[r]_n.+3)%Z by case: Z.ltb_spec => //=; lia.
+apply: Z.le_lt_trans (irrational_denom_lbound _ _ iR) _.
+apply: Z.le_lt_trans (irrational_denom_lt _ _ iR).
+apply: denom_le.
 Qed.
 
 Lemma denom_2_eq_1 r : ('a[r]_ 2 <= 1 -> 'q[r]_2 = 1)%Z.

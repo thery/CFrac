@@ -1,7 +1,8 @@
 From HB Require Import structures.
 Require Import Reals Psatz.
-From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun fintype bigop.
-Require Import Zpower.
+From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun fintype.
+From mathcomp Require Import bigop.
+Require Import Zpower Znumtheory moreZ.
 Delimit Scope ring_scope with RR.
 
 Open Scope R_scope.
@@ -310,4 +311,93 @@ have [q_eq0| q_neq0] := Req_dec q 0.
 have [] := rI (- `[r] * q + p)%Z q.
 rewrite plus_IZR mult_IZR opp_IZR Rdiv_plus_distr pqE {2}rE.
 by field.
+Qed.
+
+Lemma sqrt2_irr : irrational (sqrt 2).
+Proof.
+move=> x y.
+have s2G : 1 < sqrt 2.
+  by rewrite -sqrt_1; apply: sqrt_lt_1_alt; lra.
+elim/Zcomplements.Z_lt_abs_induction: x y => x IH y xyE.
+have xxE : (x * x = 2 * y * y)%Z.
+  apply: eq_IZR; rewrite !mult_IZR.
+  have -> : 2 = sqrt 2 * sqrt 2.
+    by have /sqrt_sqrt Hf : 0 <= 2 by lra.
+  rewrite -xyE; field => yE.
+  by rewrite yE Rdiv_0_r in xyE; lra.
+have Ex : Z.even x.
+  have := Z.even_mul x x.
+  rewrite xxE.
+  by rewrite -Zmult_assoc Z.even_mul /=; case: Z.even.
+have Ex1 : Zeven x by apply/Zeven_bool_iff.
+case: (Zeven_ex x Ex1) => x1 xE.
+have Ey : Z.even y.
+  have := Z.even_mul y y.
+  have -> : (y * y = 2 * x1 * x1)%Z by lia.
+  by rewrite -Zmult_assoc Z.even_mul /=; case: Z.even.
+have Ey1 : Zeven y by apply/Zeven_bool_iff.
+case: (Zeven_ex y Ey1) => y1 yE.
+have [x_eq0|x_neq0] := Z.eq_dec x 0.
+  have y_eq0 : y = 0%Z by lia.
+  suff : sqrt 2 = 0 by lra.
+  by rewrite -xyE x_eq0 y_eq0; lra.
+have [y_eq0|y_neq0] := Z.eq_dec y 0.
+  have x_eq0 : x = 0%Z by lia.
+  suff : sqrt 2 = 0 by lra.
+  by rewrite -xyE x_eq0 y_eq0; lra.
+case: (IH x1 _ y1); first by lia.
+rewrite -xyE xE yE !mult_IZR; field.
+apply: not_0_IZR; lia.
+Qed.
+
+Lemma sqrt5_irr : irrational (sqrt 5).
+Proof.
+move=> x y.
+have s5G : 1 < sqrt 5.
+  by rewrite -sqrt_1; apply: sqrt_lt_1_alt; lra.
+elim/Zcomplements.Z_lt_abs_induction: x y => x IH y xyE.
+have xxE : (x * x = 5 * y * y)%Z.
+  apply: eq_IZR; rewrite !mult_IZR.
+  have -> : 5 = sqrt 5 * sqrt 5.
+    by have /sqrt_sqrt Hf : 0 <= 5 by lra.
+  rewrite -xyE; field => yE.
+  by rewrite yE Rdiv_0_r in xyE; lra.
+have Ex : (5 | x)%Z.
+  have /prime_mult[]// : (5 | x * x)%Z by rewrite xxE; exists (y * y)%Z; lia.
+  by apply: prime_5.
+case: Ex => x1 xE.
+have Ey : (5 | y)%Z.
+  have /prime_mult[]// : (5 | y * y)%Z.
+    have-> : (y * y = 5 * x1 * x1)%Z by lia.
+    by exists (x1 * x1)%Z; lia.
+  by apply: prime_5.
+case: Ey => y1 yE.
+have [x_eq0|x_neq0] := Z.eq_dec x 0.
+  have y_eq0 : y = 0%Z by lia.
+  suff : sqrt 5 = 0 by lra.
+  by rewrite -xyE x_eq0 y_eq0; lra.
+have [y_eq0|y_neq0] := Z.eq_dec y 0.
+  have x_eq0 : x = 0%Z by lia.
+  suff : sqrt 5 = 0 by lra.
+  by rewrite -xyE x_eq0 y_eq0; lra.
+case: (IH x1 _ y1); first by lia.
+rewrite -xyE xE yE !mult_IZR; field.
+apply: not_0_IZR; lia.
+Qed.
+
+(* Golden Ration                                                              *)
+Definition gr := (1 + sqrt 5) / 2.
+
+Lemma gr_irr : irrational gr.
+Proof.
+move=> x y grE.
+have y_neq_0 : y <> 0%Z.
+  move=> y_eq_0; rewrite y_eq_0 /Rdiv Rinv_0 Rmult_0_r in grE.
+  have [] := sqrt5_irr (- 1)%Z 1%Z.
+  by rewrite /gr in grE; lra.
+have yR_neq_0 : IZR y <> 0 by move=> hR; case: y_neq_0; apply: eq_IZR.
+case: (sqrt5_irr (2 * x - y)%Z y).
+rewrite minus_IZR mult_IZR Rdiv_plus_distr.
+have -> : 2 * x / y = 2 * (x / y) by field.
+by rewrite grE /gr; field.
 Qed.

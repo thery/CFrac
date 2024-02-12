@@ -4,6 +4,7 @@
 -R . rfac
 
 moreR.v
+moreZ.v
 slater.v
 nfracR.v
 rfrac.v
