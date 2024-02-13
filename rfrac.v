@@ -120,31 +120,6 @@ case: (irrational_IZR 0); rewrite -ir_eq0.
 by apply/irrational_frac/irrational_inv/irrational_frac.
 Qed.
 
-Lemma sqrt5B : 2 <  sqrt 5 < 3.
-Proof.
-have -> : 2 = sqrt (2 * 2) by rewrite sqrt_square; lra.
-have -> : 3 = sqrt (3 * 3) by rewrite sqrt_square; lra.
-by split; apply: sqrt_lt_1; lra.
-Qed.
-
-Lemma grB : 1 <  gr < 2.
-Proof. by rewrite /gr; have := sqrt5B; lra. Qed.
-
-Lemma floor_grE : `[gr] = 1%Z.
-Proof. by apply: Zfloor_eq; have := grB; lra. Qed.
-
-Lemma fract_grE : `{gr} = (sqrt 5 - 1) / 2.
-Proof. by rewrite /frac_part floor_grE /gr; lra. Qed.
-
-Lemma fract_gr_revE : / `{gr} = gr.
-Proof.
-rewrite fract_grE /gr Rinv_div -(Rdiv_mult_r_r gr); last by have := grB; lra.
-rewrite -/gr.
-suff -> : (sqrt 5 - 1) * gr = 2 by lra.
-suff -> : 2 = ((sqrt 5 * sqrt 5) - 1) / 2 by rewrite /gr; lra.
-by rewrite sqrt_sqrt; lra.
-Qed.
-
 Lemma gr_elt n : (0 < n)%nat -> 'a[gr]_ n = 1%Z.
 Proof.
 elim: n => //= [] [|n] IH _; first by rewrite elt_1 floor_grE.
