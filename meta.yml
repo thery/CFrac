@@ -34,6 +34,11 @@ dependencies:
     version: '{(>= "2.2.0")}'
   description: |-
     [MathComp ssreflect 2.2 or later](https://math-comp.github.io)
+- opam:
+    name: conf-csdp
+    version: '{(>= "1")}'
+  description: |-
+    Virtual package relying on a CSDP binary system installation
 
 tested_coq_opam_versions:
 - version: '2.2.0-coq-8.18'
