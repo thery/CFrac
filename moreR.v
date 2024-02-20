@@ -7,7 +7,7 @@ Delimit Scope ring_scope with RR.
 
 Open Scope R_scope.
 
-(*******************************************************************************)
+(******************************************************************************)
 
 Coercion IZR : Z >-> R.
 
@@ -102,6 +102,9 @@ case: Rle_dec => H /=.
   apply: Zfloor_eq; rewrite plus_IZR plus_IZR /=; lra.
 apply: Zfloor_eq; rewrite plus_IZR; lra.
 Qed.
+
+Lemma Zfloor_pos r : 0 <= r -> (0 <= `[r])%Z.
+Proof. by move=> r_ge_0; rewrite -(ZfloorZ 0); apply: Zfloor_le. Qed.
 
 (******************************************************************************)
 
@@ -388,6 +391,12 @@ Qed.
 Lemma irrational_IZR z : ~ (irrational (IZR z)).
 Proof. by move=> /(_ z 1%Z) []; field. Qed.
 
+Lemma frac_neq_0_irrational z : irrational z -> `{z} <> 0.
+Proof.
+move=> iR fz_eq0; case: (irrational_IZR 0).
+by rewrite -fz_eq0; apply: irrational_frac.
+Qed.
+ 
 (* Golden Ration                                                              *)
 Definition gr := (1 + sqrt 5) / 2.
 
