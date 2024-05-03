@@ -2,7 +2,7 @@ Require Import Reals Psatz.
 From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun. 
 From mathcomp Require Import fintype bigop seq.
 Require Import Zpower.
-Require Import moreR moreZ rfrac.
+Require Import moreR moreZ rfrac fib.
 
 Open Scope R_scope.
 
@@ -164,7 +164,7 @@ rewrite [LHS](big_mko_list r ('bo[r, n.+1]) (Z.of_nat n.+1)).
 by apply: bostro_spos.
 Qed.
 
-Lemma ostro_bound (r : R) (n : nat) (v : Z) i :
+Lemma ostro_bound (r : R) (n : nat) i :
   irrational r -> 0 <= r -> (0 <=  'o[r, n]_i <= 'a[r]_i)%Z. 
 Proof.
 move=> rI rP; rewrite /ostro.
@@ -179,7 +179,7 @@ rewrite ltnS; case: leqP => [iLb|bLi].
 by have := elt_ppos i.+1 r rP; lia.
 Qed.
 
-Lemma ostro_eq0 (r : R) (n : nat) (v : Z) i :
+Lemma ostro_eq0 (r : R) (n : nat) i :
   irrational r -> 0 <= r -> 
   ('o[r, n]_i.+1 = 'a[r]_i.+1)%Z -> ('o[r, n]_i = 0)%Z. 
 Proof.
@@ -193,4 +193,20 @@ rewrite subSn //; apply: mko_list_eq0 => //; last first.
   by rewrite subnA ?subSn ?subnn // (leq_trans (_ : i1 <= i1.+1)%N) //.
 split; first by lia.
 by rewrite -E; have [] := bostroP _ n rI.
+Qed.
+
+Lemma gr_ostro_bound (n : nat) i : (0 <=  'o[gr, n]_i <= 1)%Z. 
+Proof.
+have : (0 <= 'o[gr, n]_i <= 'a[gr]_ i)%Z.
+  apply: ostro_bound; first by apply: gr_irr.
+  by have := grB; lra.
+case: i => [|i] /=; first by rewrite elt_0; lia.
+by rewrite gr_elt.
+Qed.
+
+Lemma gr_ostro_eq0 (n : nat) i :
+  ('o[gr, n]_i.+1 = 1)%Z -> ('o[gr, n]_i = 0)%Z. 
+Proof.
+rewrite -(gr_elt i.+1) //; apply: ostro_eq0; first by apply: gr_irr.
+by have := grB; lra.
 Qed.

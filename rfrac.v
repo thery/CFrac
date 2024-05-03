@@ -1,7 +1,7 @@
 Require Import Reals Psatz.
 From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun. 
 From mathcomp Require Import fintype bigop seq.
-Require Import Zpower moreR.
+Require Import Zpower moreR fib.
 
 Open Scope R_scope.
 
@@ -293,6 +293,13 @@ Proof. by move=> H; have [] := num_denom_rec n r H. Qed.
 Lemma denom_rec n r : ('a[r]_ n.+2 <> 0 ->
  'q[r]_n.+2 = 'a[r]_ n.+2 * 'q[r]_n.+1 + 'q[r]_n)%Z.
 Proof. by move=> H; have [] := num_denom_rec n r H. Qed.
+
+Lemma denom_gr_fib n : 'q[gr]_n = Z.of_nat (fib n).
+Proof.
+elim: n {-2}n (leqnn n) => [[]//| [IH [|[]] // |n IH] m].
+rewrite leq_eqVlt => /orP[/eqP->|/IH //].
+by rewrite fibSS denom_rec ?IH // gr_elt // addnE Nat2Z.inj_add; lia.
+Qed.
 
 Lemma num_lt n r : 
   0 <= r -> 'a[r]_n.+1 <> 0%Z ->

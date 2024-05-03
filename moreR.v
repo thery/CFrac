@@ -397,7 +397,7 @@ move=> iR fz_eq0; case: (irrational_IZR 0).
 by rewrite -fz_eq0; apply: irrational_frac.
 Qed.
  
-(* Golden Ration                                                              *)
+(* Golden Ratio                                                         *)
 Definition gr := (1 + sqrt 5) / 2.
 
 Lemma gr_irr : irrational gr.
