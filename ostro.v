@@ -210,3 +210,11 @@ Proof.
 rewrite -(gr_elt i.+1) //; apply: ostro_eq0; first by apply: gr_irr.
 by have := grB; lra.
 Qed.
+
+Lemma gr_big_ostro n : 
+  (Z.of_nat n = 
+  \big[Zplus/0%Z]_(i < 'bo[gr, n].+1) ('o[gr, n]_i.+1 * (Z.of_nat (fib i))))%Z.
+Proof.
+rewrite (big_ostro gr n); last by apply: gr_irr.
+by apply: eq_bigr => /= i _; rewrite denom_gr_fib.
+Qed.
