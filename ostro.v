@@ -10,7 +10,8 @@ Local Notation " 'a[ r ]_ n" := (elt r n) (at level 10, format " ''a[' r ]_ n").
 Local Notation " 'p[ r ]_ n" := (num r n) (at level 10, format " ''p[' r ]_ n").
 Local Notation " 'q[ r ]_ n" := (denom r n) 
   (at level 10, format " ''q[' r ]_ n").
-
+Local Notation " 't[ r ]_ n " := (halton r n) 
+  (at level 10, format  " ''t[' r ]_ n ").
 
 Definition bostro r (n : nat) : nat := 
  [arg min_(i < ord_max | (Z.of_nat n <? 'q[r]_(i: 'I_(n.+4)))%Z == true) i].-1.
@@ -217,4 +218,32 @@ Lemma gr_big_ostro n :
 Proof.
 rewrite (big_ostro gr n); last by apply: gr_irr.
 by apply: eq_bigr => /= i _; rewrite denom_gr_fib.
+Qed.
+
+Definition ahalton r n := 'q[r]_ n * r - 'p[r]_ n.
+Local Notation " 'ta[ r ]_ n " := (ahalton r n) 
+  (at level 10, format  " ''ta[' r ]_ n ").
+
+Lemma ahaltonE r n :  'ta[ r]_ n = (- 1) ^ n.+1 * 't[r]_n.
+Proof.
+by rewrite /ahalton /halton -Rmult_assoc -pow_add 
+           plusE addnn -mul2n pow_1_even Rmult_1_l.
+Qed.
+
+Lemma ahalton_rec r n : 
+  'a[r]_n.+2 <> 0%Z -> 'ta[r]_n.+2 = 'a[r]_n.+2 * 'ta[r]_n.+1 + 'ta[r]_n.
+Proof. by move=> ar_neq0; rewrite !ahaltonE halton_rec //=; ring. Qed.
+
+Lemma Rmod1_ostro m r : 
+   irrational r ->
+  `| Z.of_nat m * r | = 
+  `| \big[Rplus/0%R]_(i < 'bo[r, m].+1) ('o[r, m]_i.+1 * 'ta[r]_i)| .
+Proof.
+move=> rI.
+rewrite -[LHS](Rmod1_addz _
+          (\big[Zplus/0%Z]_(i < 'bo[r, m].+1) (- ('o[r, m]_i.+1 * 'p[r]_i))%Z)).
+rewrite [X in IZR X * r](big_ostro _ m rI) // !IZR_sum.
+rewrite big_distrl /= -big_split /=.
+congr (`|_|); apply: eq_bigr => i _.
+by rewrite opp_IZR !mult_IZR /ahalton; lra.
 Qed.

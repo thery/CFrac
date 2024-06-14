@@ -22,6 +22,18 @@ Import Monoid.
 HB.instance Definition _ := 
   isComLaw.Build R 0 Rplus RplusA Rplus_comm Rplus_0_l.
 
+HB.instance Definition _ := 
+  isAddLaw.Build R Rmult Rplus Rmult_plus_distr_r Rmult_plus_distr_l.
+
+HB.instance Definition _ := isMulLaw.Build R 0 Rmult Rmult_0_l Rmult_0_r.
+
+Lemma IZR_sum (A : Type) (l : list A) (f : A -> Z) : 
+  \big[Zplus/0%Z]_(i <- l) (f i) = \big[Rplus/0%R]_(i <- l) IZR (f i) :> R.
+Proof.
+elim: l => /= [|a l IH]; first by rewrite !big_nil.
+by rewrite !big_cons plus_IZR IH.
+Qed.
+
 (* Some auxillary facts                                                       *)
 
 Fact INR0 : 0%N = 0 :> R.
@@ -105,6 +117,22 @@ Qed.
 
 Lemma Zfloor_pos r : 0 <= r -> (0 <= `[r])%Z.
 Proof. by move=> r_ge_0; rewrite -(ZfloorZ 0); apply: Zfloor_le. Qed.
+
+Definition Zceil (x : R) := (- Zfloor (- x))%Z.
+
+Notation "`ceil[ x ]" := (Zceil x).
+
+Theorem Zceil_bound x : (`ceil[x] - 1 < x <= `ceil[x])%R.
+Proof.
+rewrite /Zceil; have := Zfloor_bound (- x).
+by rewrite !opp_IZR; lra.
+Qed.
+
+Theorem Zfloor_ceil_bound x : (`[x] <= x <= `ceil[x])%R.
+Proof.
+by have := Zfloor_bound x; have := Zceil_bound x; lra.
+Qed.
+
 
 (******************************************************************************)
 
@@ -259,6 +287,8 @@ rewrite /Rmod1 /Rmin /frac_part !plus_IZR /=.
 case: Rle_dec; split_Rabs; try lra.
 Qed.
 
+Lemma Rmod1_addz r z : `|r + IZR z| = `|r|.
+Proof. by rewrite /Rmod1 frac_addz. Qed.
 
 (******************************************************************************)
 (*                               Comparison                                   *)
