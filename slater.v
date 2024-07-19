@@ -358,7 +358,7 @@ have mBLN : (m - get_max n <= N)%N by apply: leq_trans (leq_subr _ _) mLN.
 apply: Ninj=> //; first by apply: leq_trans (Lget_next _ _) nLN.
 case: get_next_spec gLn (mLn) (mLN) mBLN; first by rewrite mLn.
   by rewrite subnn.
-move=> {m mLn mLN} m m1 m1Lm mgaLm1a m2_min gLn mLn mLN mBLN.
+move=> {mLn mLN} m m1 m1Lm mgaLm1a m2_min gLn mLn mLN mBLN.
 set b := get_max n in gLn, mLn, mBLN; rewrite -/b.
 have Ea : `{m * a} = `{(m - b)%N * a} + `{b * a} - 1.
   by apply: get_maxD; rewrite ?gLn.
@@ -517,7 +517,7 @@ case: get_next_spec (nBgLm) (mLg).
 have nNZ : n != 0%N.
   apply: contra bNEB; rewrite /b /B=> /eqP->.
   by rewrite get_min0 get_max0.
-move=> {m nBgLm mLg} m m1 m1Ln maLm1a m2_min nBgLm mLg.
+move=> {nBgLm mLg} m m1 m1Ln maLm1a m2_min nBgLm mLg.
 have mbBLn: (m + b - B <= n)%N.
   apply: leq_trans (Lget_min _).
   rewrite -[get_min n](addnK B) -/b.
@@ -637,10 +637,10 @@ Proof.
 move=> /andP[mLn nLN].
 (case: get_next_spec (mLn); rewrite ?mLn //=).
    by rewrite get_prev0.
-move=> {m mLn}m m1 m1Ln; case: get_prev_spec (m1Ln).
+move=> {mLn}m m1 m1Ln; case: get_prev_spec (m1Ln).
 - by rewrite m1Ln.
 - by rewrite a0; have := frac_bound (m * a); lra.
-move=> {m1 m1Ln}m1 m2 m2Ln m2aLm1a m2P m1Ln maLm1a m1P mLn.
+move=> {m1Ln}m1 m2 m2Ln m2aLm1a m2P m1Ln maLm1a m1P mLn.
 apply: Ninj=> //; try by rewrite (leq_trans _ nLN).
 have maLm2a := m2P _ mLn maLm1a.
 suff : ~ `{m * a} < `{m2 * a} by lra.
@@ -655,10 +655,10 @@ Proof.
 move=> /andP[mLn nLN].
 case: get_prev_spec (mLn)=> //; first by rewrite mLn.
   by rewrite get_next_max.
-move=> {m mLn}m m1 m1Ln.
+move=> {mLn}m m1 m1Ln.
 case: get_next_spec (m1Ln); first by rewrite m1Ln.
   by move=> _ gaLma _ mLn; have := get_max_max _ _ mLn; lra.
-move=> {m1 m1Ln}m1 m2 m2Ln m1aLm2a m2P m1Ln m1aLma m1P mLn.
+move=> {m1Ln}m1 m2 m2Ln m1aLm2a m2P m1Ln m1aLma m1P mLn.
 apply: Ninj=> //; try by rewrite (leq_trans _ nLN).
 have m2aLma := m2P _ mLn m1aLma.
 suff : ~ `{m2 * a} < `{m * a} by lra.

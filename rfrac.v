@@ -569,8 +569,11 @@ have F3 : (0 < 'q[r]_ n.+1  <= 'q[r ]_ n.+2)%Z.
   by split; [apply: denom_spos | apply: denom_le].
 have F4:  mu * nu <= 0.
   rewrite -mult_IZR; apply: (IZR_le _ 0).
-  have : ~(mu < 0 /\ nu < 0)%Z by nia.
-  by have : ~(mu > 0 /\ nu > 0)%Z; nia.
+  have : (0 <= mu \/ 0 <= nu)%Z by nia.
+  have : (mu <= 0 \/ nu <= 0)%Z by nia.
+  clear; case => ?; case => ?; try nia.
+    by have : (mu = 0)%Z; lia.
+  by have : (nu = 0)%Z; lia.
 have : 0 <=   't[r ]_ n.+1 by exact: halton_pos.
 have : 0 <=   't[r ]_ n.+2 by exact: halton_pos.
 have : 1 <= Rabs mu.
