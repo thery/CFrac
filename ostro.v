@@ -487,4 +487,3 @@ set x := \big[_/_]_(_ < _) _.
 suff : x <= 't[r]_i.+3 by lra.
 by apply: IH.
 Qed.
-

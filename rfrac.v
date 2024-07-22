@@ -435,6 +435,22 @@ rewrite /halton {1}(num_rec _ _ nLs) {1}(denom_rec _ _ nLs) /=.
 rewrite !(plus_IZR, mult_IZR); nra.
 Qed.
 
+
+Lemma halton_2 r : 't[r]_2 <= /2.
+Proof.
+have [r_neq0|r_eq0] := Req_dec `{r} 0; first by rewrite haltonE_z //; lra.
+rewrite haltonE // halton_1.
+have rB := frac_bound r.
+have rBi := frac_bound (/ `{ r}).
+have [rLi2|i2Lr] := Rle_lt_dec `{r} (/2); first by nra.
+  have rBi' : 1 <= / `{ r} < 2.
+    split; first by (have -> : 1 = /1 by lra); apply: Rinv_le_contravar; lra.
+  by (have -> : 2 = /(/2) by lra); apply: Rinv_lt_contravar; lra.
+rewrite -[`{/_}](frac_addz (-1)) [`{_ + _}]frac_inv; last by lra.
+have -> : `{ r} * (/ `{ r} + -1) = 1 - `{r} by field; lra.
+by lra.
+Qed.
+
 Lemma halton_eq_0 r n : 'a[r]_n.+2 = 0%Z -> 't[r]_ n.+1 = 0.
 Proof.
 elim: n r => [r|n IH r].
