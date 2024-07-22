@@ -248,16 +248,19 @@ congr (`|_|); apply: eq_bigr => i _.
 by rewrite opp_IZR !mult_IZR /ahalton; lra.
 Qed.
 
-Lemma big_ordD (R : Type) (idx : R) (op : Monoid.com_law idx) (f : nat -> R) (m n : nat) :
-  \big[op/idx]_(i < m + n)  f i = op (\big[op/idx]_(i < m)  f i) (\big[op/idx]_(i < n)  f (m + i)%N).
+Lemma big_ordD (R : Type) (idx : R) (op : Monoid.com_law idx) 
+               (f : nat -> R) (m n : nat) :
+  \big[op/idx]_(i < m + n)  f i = 
+  op (\big[op/idx]_(i < m)  f i) (\big[op/idx]_(i < n)  f (m + i)%N).
 Proof.
-elim: n => [|n IH].
-  by rewrite addn0 big_ord0 !Monoid.simpm.
+elim: n => [|n IH]; first by rewrite addn0 big_ord0 !Monoid.simpm.
 by rewrite !addnS !big_ord_recr /= IH -!Monoid.mulmA.
 Qed.
 
-Lemma half_big (R : Type) (idx : R) (op : Monoid.com_law idx) (f : nat -> R) (n : nat) :
-  \big[op/idx]_(i < n)  f i = op (\big[op/idx]_(i < uphalf n)  f i.*2) (\big[op/idx]_(i < n./2)  f i.*2.+1).
+Lemma half_big (R : Type) (idx : R) (op : Monoid.com_law idx) 
+  (f : nat -> R) (n : nat) :
+  \big[op/idx]_(i < n)  f i = 
+  op (\big[op/idx]_(i < uphalf n)  f i.*2) (\big[op/idx]_(i < n./2)  f i.*2.+1).
 Proof.
 elim/ltn_ind: n => [] [|[|n]] IH.
 - by rewrite  /= !big_ord0 // !Monoid.simpm.
@@ -274,8 +277,10 @@ by rewrite [RHS]Monoid.mulmC.
 Qed.
 
 Lemma bound_left_big m r i : 
-  irrational r -> 0 <= r -> (i <  'bo[r, m].+1)%nat ->'o[r, m]_i.+1 <> 0%Z -> (forall j, (j < i)%nat -> 'o[r, m]_j.+1 = 0%Z) ->
-  ('o[r, m]_i.+1 - 1) * 't[r]_i + 't[r]_i.+1 <=  Rabs (\big[Rplus/0%R]_(i < 'bo[r, m].+1) ('o[r, m]_i.+1 * 'ta[r]_i)).
+  irrational r -> 0 <= r -> (i <  'bo[r, m].+1)%nat ->'o[r, m]_i.+1 <> 0%Z -> 
+  (forall j, (j < i)%nat -> 'o[r, m]_j.+1 = 0%Z) ->
+  ('o[r, m]_i.+1 - 1) * 't[r]_i + 't[r]_i.+1 <=  
+  Rabs (\big[Rplus/0%R]_(i < 'bo[r, m].+1) ('o[r, m]_i.+1 * 'ta[r]_i)).
 Proof.
 move=> r_irr r_pos iLbo o_neq0 o_lt.
 have F1 j : (0 <= 'o[r, m]_j <= 'a[r]_j)%Z by apply: ostro_bound.
@@ -297,9 +302,11 @@ have {}F3 k l : (- 1) ^ (k + l.*2.+1).+1 = (- 1) ^ k.+2.
 under eq_bigr do rewrite ahaltonE F3 F4.
 rewrite -big_distrr; set v2 := _ ^ _; rewrite /=.
 set v2B := \big[_/_]_(_ < _) _.
-have -> : v1 * v1B + v2 * v2B = v1 * (v1B - v2B) by rewrite /v1 /v2 /v1B /v2B /=; lra.
+have -> : v1 * v1B + v2 * v2B = v1 * (v1B - v2B) 
+  by rewrite /v1 /v2 /v1B /v2B /=; lra.
 rewrite Rabs_mult pow_1_abs Rmult_1_l.
-have -> : ('o[r, m]_i.+1 - 1) *  't[r]_i  +  't[r]_i.+1 = 'o[r, m]_i.+1 * 't[r]_i  -  ('t[r]_i - 't[r]_i.+1) by lra.
+have -> : ('o[r, m]_i.+1 - 1) *  't[r]_i  +  't[r]_i.+1 = 
+         'o[r, m]_i.+1 * 't[r]_i  -  ('t[r]_i - 't[r]_i.+1) by lra.
 apply: Rle_trans (_ : Rabs v1B - Rabs v2B <= _); last by split_Rabs; lra.
 have {}F3 a b c d : a <= b -> c <= d -> a - d <= b - c by lra.
 apply: F3.
@@ -319,33 +326,28 @@ apply: F3.
   set v3B := \big[_/_]_(_ < _ | _) _.
   suff : 0 <= v3B by lra.
   rewrite {}/v3B; elim: k => [|u IH]; first by rewrite big_ord0; lra.
-  rewrite big_ord_recr /=.
-  set x := \big[_/_]_(_ < _) _  in IH; rewrite -/x.
-  suff : 0 <= 'o[r, m]_(i + (bump 0 u).*2).+1 *  't[r]_(i + (bump 0 u).*2) by lra.
+  rewrite big_ord_recr /=; set v := (_ + _)%nat.
+  apply: Rplus_le_le_0_compat; first by apply: IH.
   apply: Rmult_le_pos.
-    by apply: IZR_le;  have := ostro_bound r m (i + (bump 0 u).*2).+1 r_irr r_pos; lia.
+    by apply: IZR_le;  have := ostro_bound r m v.+1 r_irr r_pos; lia.
   by apply: halton_pos.
 rewrite Rabs_pos_eq; last first.
   rewrite /v2B; elim: (_./2) => [|u IH]; first by rewrite big_ord0; lra.
-  rewrite big_ord_recr /=.
-  set x := \big[_/_]_(_ < _) _  in IH; rewrite -/x.
-  suff : 0 <= 'o[r, m]_(i + u.*2.+1).+1 *  't[r]_(i + u.*2.+1) by lra.
+  rewrite big_ord_recr /=; set v := (_ + _)%nat.
+  apply: Rplus_le_le_0_compat; first by apply: IH.
   apply: Rmult_le_pos.
-    by apply: IZR_le;  have := ostro_bound r m (i + u.*2.+1).+1 r_irr r_pos; lia.
+    by apply: IZR_le;  have := ostro_bound r m v.+1 r_irr r_pos; lia.
   by apply: halton_pos.
 have F5 : 't[r]_i.+1 < 't[r]_i.
   case: {iLbo o_neq0 o_lt F2 v1 v1B v2 v2B}i => [|i].
-    rewrite halton_0 halton_1.
-    have := frac_bound r; lra.
-  apply: halton_ltS.
-  by apply: irrational_elt_neq_0.
-rewrite /v2B; case: (_./2) => [|k].
-  rewrite big_ord0; lra.
+    by rewrite halton_0 halton_1; have := frac_bound r; lra.
+  by apply/halton_ltS/irrational_elt_neq_0.
+rewrite /v2B; case: (_./2) => [|k]; first by rewrite big_ord0; lra.
 apply: Rle_trans (_ : 
   \big[Rplus/0]_(j < k.+1) ( 'a[r]_(i + j.*2.+1).+1 *  't[r]_(i + j.*2.+1)) -
   't[r]_i.+1 <= _); last first.
-  suff : \big[Rplus/0]_(j < k.+1) ( 'a[r]_(i + j.*2.+1).+1 *  't[r]_(i + j.*2.+1))  <=
-         't[r]_i  by lra.
+  suff : \big[Rplus/0]_(j < k.+1)
+           ( 'a[r]_(i + j.*2.+1).+1 *  't[r]_(i + j.*2.+1))  <= 't[r]_i  by lra.
   elim: k {iLbo o_neq0 o_lt F2 v1 v1B v2 v2B F5}i => [i |k IH i].
     rewrite big_ord_recr big_ord0 /= ?addn1 Rplus_0_l.
     have : 'a[r]_i.+2 *  't[r]_i.+1 = 't[r]_i - 't[r]_i.+2.
@@ -383,7 +385,8 @@ have := F1 v.+1; lia.
 Qed.
 
 Lemma bound_right_big m r i : 
-  irrational r -> 0 <= r -> (i <  'bo[r, m].+1)%nat ->'o[r, m]_i.+1 <> 0%Z -> (forall j, (j < i)%nat -> 'o[r, m]_j.+1 = 0%Z) ->
+  irrational r -> 0 <= r -> (i <  'bo[r, m].+1)%nat ->'o[r, m]_i.+1 <> 0%Z -> 
+  (forall j, (j < i)%nat -> 'o[r, m]_j.+1 = 0%Z) ->
   Rabs (\big[Rplus/0%R]_(i < 'bo[r, m].+1) ('o[r, m]_i.+1 * 'ta[r]_i)) <=
   'o[r, m]_i.+1 * 't[r]_i + 't[r]_i.+1.
 Proof.
@@ -405,7 +408,8 @@ have {}m1E k l : (- 1) ^ (k + l.*2.+1).+1 = (- 1) ^ k.+2.
 under eq_bigr do rewrite ahaltonE m1E mAC.
 rewrite -big_distrr; set v2 := _ ^ _; rewrite /=.
 set v2B := \big[_/_]_(_ < _) _.
-have -> : v1 * v1B + v2 * v2B = v1 * (v1B - v2B) by rewrite /v1 /v2 /v1B /v2B /=; lra.
+have -> : v1 * v1B + v2 * v2B = v1 * (v1B - v2B)
+  by rewrite /v1 /v2 /v1B /v2B /=; lra.
 rewrite Rabs_mult pow_1_abs Rmult_1_l.
 have v1BB : 't[r]_i <= v1B.
   have : (0 < uphalf (( 'bo[r, m]).+1 - i))%nat.
@@ -426,7 +430,8 @@ have v1BB : 't[r]_i <= v1B.
 have v2BB : v2B <= 't[r]_i.
   rewrite /v2B; set k := _./2.
   apply: Rle_trans (_ : 
-    \big[Rplus/0]_(j < k) ( 'a[r]_(i + j.*2.+1).+1 *  't[r]_(i + j.*2.+1)) <= _); last first.
+    \big[Rplus/0]_(j < k) ( 'a[r]_(i + j.*2.+1).+1 *  't[r]_(i + j.*2.+1)) 
+          <= _); last first.
     move: k => k.
     elim: k {iLbo o_neq0 o_lt v1 v1B v2 v2B tri_pos v1BB}i => [i |k IH i].
       by rewrite big_ord0; apply: halton_pos.
@@ -466,7 +471,7 @@ have F5 k1 l : (k1 + (1 + l).*2 = k1.+2 + l.*2)%nat.
   by rewrite add1n !addSnnS doubleS.
 under eq_bigr do rewrite F5.
 apply: Rle_trans (_ : 
-    \big[Rplus/0]_(j < k) ( 'a[r]_(i.+2 + j.*2).+1 *  't[r]_(i.+2 + j.*2)) <= _).
+    \big[Rplus/0]_(j < k) ('a[r]_(i.+2 + j.*2).+1 *  't[r]_(i.+2 + j.*2)) <= _).
   elim: k => [| k IH]; first by rewrite !big_ord0; lra.
   rewrite !big_ord_recr /=; apply: Rplus_le_compat; first by apply: IH.
   set v := (_ + _)%nat.
