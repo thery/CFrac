@@ -64,7 +64,7 @@ Proof. by rewrite big_const_nat iterR_cons. Qed.
 (* Floor function                                                             *)
 Definition Zfloor (x : R) := (up x - 1)%Z.
 
-Notation "`[ x ]" := (Zfloor x).
+Notation "`[ x ]" := (Zfloor x) (format "`[ x ]").
 
 Lemma Zfloor_bound x : `[x] <= x < `[x] + 1.
 Proof.
@@ -290,6 +290,50 @@ Qed.
 Lemma Rmod1_addz r z : `|r + IZR z| = `|r|.
 Proof. by rewrite /Rmod1 frac_addz. Qed.
 
+Lemma Rmod1_opp r  : `|- r| = `|r|.
+Proof.
+rewrite /Rmod1 /frac_part.
+have [rE|rN] := Req_dec r `[r].
+  have -> : `[- r] = (- `[r])%Z by rewrite rE -opp_IZR !ZfloorZ.
+  rewrite opp_IZR -rE /Rminus -!Ropp_plus_distr [_ + - _]Rminus_diag.
+  by rewrite !Ropp_0 Rplus_0_r.
+have -> : `[- r] = (-`[r] - 1)%Z.
+  apply: Zfloor_eq.
+  suff H :  `[r] <= r < `[r] + 1 by rewrite plus_IZR !opp_IZR; lra.
+  by apply: Zfloor_bound.
+by rewrite plus_IZR !opp_IZR Rmin_comm; congr Rmin; lra.
+Qed.
+
+Lemma Rmod1_small r : Rabs r <= /2 -> `|r| = Rabs r.
+Proof.
+wlog E : r / 0 <= r => [H Hr|].
+  have [r_pos|r_neg] := Rle_lt_dec 0 r; first by apply: H.
+  rewrite -Rmod1_opp -Rabs_Ropp; apply: H; first lra.
+  by rewrite Rabs_Ropp; lra.
+rewrite Rabs_pos_eq // => rL.
+rewrite /Rmod1 /frac_part.
+have -> : `[r] = 0%Z by apply: Zfloor_eq; lra.
+by rewrite /Rmin; case: Rle_dec; lra.
+Qed.
+
+
+Lemma Rmod1_IZR (z : Z) :  `|z| = 0.
+Proof. by rewrite /Rmod1 fracZ /Rmin; case: Rle_dec; lra. Qed.
+
+Lemma Rmod1_0L1 r a b : 0 <= a <= b -> a <= Rabs r <= 1 - b -> a <= `|r|.
+Proof.
+move=> aLb rB.
+have [r_eq1|r_neq1] := Req_dec r 1.
+  rewrite r_eq1 Rabs_pos_eq in rB; last by lra.
+  by rewrite r_eq1 Rmod1_IZR; lra.
+rewrite /Rmod1 /frac_part.
+have [r_neg|r_pos] := Rle_dec 0 r; last first.
+  have -> : `[r] = (-1)%Z by apply: Zfloor_eq; split_Rabs; lra.
+  by rewrite /Rmin; case: Rle_dec; split_Rabs; lra.
+have -> : `[r] = 0%Z by apply: Zfloor_eq; split_Rabs; lra.
+by rewrite /Rmin; case: Rle_dec; split_Rabs; lra.
+Qed.
+
 (******************************************************************************)
 (*                               Comparison                                   *)
 (******************************************************************************)
@@ -468,4 +512,5 @@ suff -> : (sqrt 5 - 1) * gr = 2 by lra.
 suff -> : 2 = ((sqrt 5 * sqrt 5) - 1) / 2 by rewrite /gr; lra.
 by rewrite sqrt_sqrt; lra.
 Qed.
+
 

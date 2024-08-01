@@ -435,8 +435,7 @@ rewrite /halton {1}(num_rec _ _ nLs) {1}(denom_rec _ _ nLs) /=.
 rewrite !(plus_IZR, mult_IZR); nra.
 Qed.
 
-
-Lemma halton_2 r : 't[r]_2 <= /2.
+Lemma halton_2 r : 't[r]_2 < /2.
 Proof.
 have [r_neq0|r_eq0] := Req_dec `{r} 0; first by rewrite haltonE_z //; lra.
 rewrite haltonE // halton_1.
