@@ -669,3 +669,16 @@ apply: Rmod1_0L1 BS1; split; first by apply: halton_pos.
 apply/Rlt_le/halton_lt => //.
 by apply: irrational_elt_neq_0.
 Qed.
+
+Lemma ostro2_mhalf m r : 
+  irrational r -> 0 <= r -> /2  < `{r} -> 'o[r, m]_2 = 0%Z.
+Proof.
+move=> rI r_pos r_half.
+have : ('o[r,m]_2 < 'a[r]_2)%Z by apply: ostro2_lt.
+have := ostro_bound _ m 2 rI r_pos.
+suff ->: 'a[r]_2 = 1%Z by lia.
+rewrite eltE ?elt_1 //; last by lra.
+apply: Zfloor_eq; split; first by apply/Rlt_le/frac_inv_gt_1; lra.
+have -> : 1 + 1 = / / 2 by lra.
+by apply: Rinv_0_lt_contravar; lra.
+Qed.
