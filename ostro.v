@@ -163,7 +163,7 @@ by apply: denom_le.
 Qed.
 
 Definition ostro r n i := 
-  if (i <=  (bostro r n).+1)%nat then 
+  if (i <=  'bo[r, n].+1)%nat then 
     nth 0%Z (mko_list r (bostro r n) (Z.of_nat n)) (bostro r n - i.-1)
   else 0%Z.
 
@@ -178,6 +178,9 @@ Proof. by rewrite /ostro /= subn0 nth_default // size_mko_list. Qed.
 
 Lemma ostro_1 r n : 'o[r, n]_1  = 0%Z.
 Proof. by rewrite /ostro /= subn0 nth_default // size_mko_list. Qed.
+
+Lemma ostro_bostro r n i : ('bo[r, n].+1 < i)%nat ->  'o[r, n]_i = 0%Z.
+Proof. by rewrite /ostro; case: leqP. Qed.
 
 Lemma big_ostro r n : 
   irrational r -> 
@@ -638,36 +641,41 @@ Lemma Rmod1_ostro_Rabs_half1 m r :
   't[r]_2 <= `| Z.of_nat m * r |.
 Proof.
 move=> rI r_pos r_half o2_neq0; rewrite Rmod1_ostro //.
-set S := \big[_/_]_(_ <  _) _.
-have BS1 : 't[r]_2 <= Rabs S <= 1 - 't[r]_1.
-  split.
-    have /eqP F1 := o2_neq0.
-    apply: Rle_trans (bound_left_big _ _ _ _ _ _ F1 _) => //; last 2 first.
-      - case: (m) F1 o2_neq0 => [| m1 F1 o2_neq0]; first by rewrite ostro_0l.
-        by rewrite ltnS; apply: bostro_spos.
-      by case => // _; rewrite ostro_1.
-    suff : 0 <= ( 'o[r, m]_2 - 1) *  't[r]_1  by lra.
-    apply: Rmult_le_pos; last by apply: halton_pos.
-    suff: 1 <= 'o[r, m]_2 by lra.
-    apply: IZR_le.
-    by have := ostro_bound _ m 2 rI r_pos; lia.
-  have /eqP F1 := o2_neq0.
-  apply: Rle_trans (bound_right_big _ _ _ _ _ _ F1 _) _ => //.
-    - case: (m) F1 o2_neq0 => [| m1 F1 o2_neq0]; first by rewrite ostro_0l.
-      by rewrite ltnS; apply: bostro_spos.
+apply: Rmod1_0L1 (_ : _ <= _ <= 1 - 't[r]_1).
+  split; first by apply: halton_pos.
+  by apply/Rlt_le/halton_ltS/irrational_elt_neq_0.
+have /eqP F1 := o2_neq0.
+have F2 : (1 < ( 'bo[r, m]).+1)%N.
+  case: (m) F1 o2_neq0 => [| m1 F1 o2_neq0]; first by rewrite ostro_0l.
+  by rewrite ltnS; apply: bostro_spos.
+split.
+  apply: Rle_trans (bound_left_big _ _ _ _ _ _ F1 _) => //; last first.
     by case => // _; rewrite ostro_1.
-  apply: Rle_trans (_ : ('a[r]_2 - 1) *  't[r]_1  +  't[r]_2 <= _).
-    apply: Rplus_le_compat_r.
-    apply: Rmult_le_compat_r; first by apply: halton_pos.
-    rewrite -minus_IZR; apply: IZR_le.
-    suff: ('o[r, m]_2 <  'a[r]_2)%Z by lia.
-    by apply: ostro2_lt.
-  suff : 'a[r]_2 *  't[r]_1  +  't[r]_2  <=  't[r]_0 by rewrite halton_0; lra.
-  rewrite ['t[r]_2]halton_rec; first by lra.
-  by apply: irrational_elt_neq_0.
-apply: Rmod1_0L1 BS1; split; first by apply: halton_pos.
-apply/Rlt_le/halton_lt => //.
+  suff : 0 <= ( 'o[r, m]_2 - 1) *  't[r]_1  by lra.
+  apply: Rmult_le_pos; last by apply: halton_pos.
+  suff: 1 <= 'o[r, m]_2 by lra.
+  apply: IZR_le.
+  by have := ostro_bound _ m 2 rI r_pos; lia.
+apply: Rle_trans (bound_right_big _ _ _ _ _ _ F1 _) _ => //.
+  by case => // _; rewrite ostro_1.
+apply: Rle_trans (_ : ('a[r]_2 - 1) *  't[r]_1  +  't[r]_2 <= _).
+  apply: Rplus_le_compat_r.
+  apply: Rmult_le_compat_r; first by apply: halton_pos.
+  rewrite -minus_IZR; apply: IZR_le.
+  suff: ('o[r, m]_2 <  'a[r]_2)%Z by lia.
+  by apply: ostro2_lt.
+suff : 'a[r]_2 *  't[r]_1  +  't[r]_2  <=  't[r]_0 by rewrite halton_0; lra.
+rewrite ['t[r]_2]halton_rec; first by lra.
 by apply: irrational_elt_neq_0.
+Qed.
+
+Lemma halton2_mhalf r : irrational r -> 0 <= r -> /2  < `{r} -> 'a[r]_2 = 1%Z.
+Proof.
+move=> rI r_pos r_half.
+rewrite eltE ?elt_1 //; last by lra.
+apply: Zfloor_eq; split; first by apply/Rlt_le/frac_inv_gt_1; lra.
+have -> : 1 + 1 = / / 2 by lra.
+by apply: Rinv_0_lt_contravar; lra.
 Qed.
 
 Lemma ostro2_mhalf m r : 
@@ -675,10 +683,42 @@ Lemma ostro2_mhalf m r :
 Proof.
 move=> rI r_pos r_half.
 have : ('o[r,m]_2 < 'a[r]_2)%Z by apply: ostro2_lt.
-have := ostro_bound _ m 2 rI r_pos.
-suff ->: 'a[r]_2 = 1%Z by lia.
-rewrite eltE ?elt_1 //; last by lra.
-apply: Zfloor_eq; split; first by apply/Rlt_le/frac_inv_gt_1; lra.
-have -> : 1 + 1 = / / 2 by lra.
-by apply: Rinv_0_lt_contravar; lra.
+have := ostro_bound _ m 2 rI r_pos; have := halton2_mhalf _ rI r_pos r_half.
+by lia.
 Qed.
+
+Lemma Rmod1_ostro_mhalf1 r m : 
+  irrational r -> 0 <= r -> /2 < `{r} -> (1 < 'o[r, m]_3)%Z ->
+  `|r| <= `| Z.of_nat m * r |.
+Proof.
+move=> rI r_pos r_half o2_pos; rewrite Rmod1_ostro //.
+have -> : `|r| = 1 - `{r} by rewrite /Rmod1 /Rmin; case: Rle_dec; lra.
+apply: Rmod1_0L1 (_ : _ <= _ <= 1 - (1 - `{r})).
+  by have := frac_bound r; lra.
+have F1 : ('o[r, m]_3 <> 0)%Z by lia.
+have F2 : (2 < ( 'bo[r, m]).+1)%N.
+  rewrite ltnS; apply/leP.
+  suff : (( 'bo[r, m]).+1 < 3)%coq_nat ->  'o[r, m]_3 = 0%Z by lia.
+  by move/leP; apply: ostro_bostro.
+split.
+  have -> : 1 - `{ r}  = 't[r]_2.
+    rewrite halton_rec; last by apply: irrational_elt_neq_0.
+    by rewrite halton_0 halton_1 halton2_mhalf //; lra.
+  apply: Rle_trans (bound_left_big _ _ _ _ _ _ F1 _) => //.
+    suff : (2 <= 'o[r, m]_3).
+      by have := halton_pos 2 r; have := halton_pos 3 r; nra.
+    by apply: IZR_le; lia.
+  case => [_|[_|]] //; first by apply: ostro_1.
+  by apply: ostro2_mhalf.
+have -> : 1 - (1 - `{ r})  = 't[r]_1 by rewrite halton_1; lra.
+apply: Rle_trans (bound_right_big _ _ _ _ _ _ F1 _) _ => //.
+  case => [_|[_|]] //; first by apply: ostro_1.
+  by apply: ostro2_mhalf.
+have -> : 't[r]_1 = 'a[r]_3 *  't[r]_2  +  't[r]_3.
+  rewrite ['t[r]_3]halton_rec; first by lra.
+  by apply: irrational_elt_neq_0.
+apply: Rplus_le_compat_r.
+apply: Rmult_le_compat_r; first by apply: halton_pos.
+by apply: IZR_le; have := ostro_bound r m 3 rI r_pos; lia.
+Qed.
+
