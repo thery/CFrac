@@ -765,8 +765,9 @@ apply: Rinv_0_le_compat.
 by have := frac_bound (zeta r k); lra.
 Qed.
 
-Lemma foo r : irrational r -> 0 <= r -> (0 < 'a[r]_3)%Z -> / 2 < `{r} ->
-    r <= 'a[r]_1 + / ('a[r]_2 + / (2 * 'a[r]_3)).
+Lemma elt_1_2_ineq r : 
+  irrational r -> 0 <= r -> (0 < 'a[r]_3)%Z -> / 2 < `{r} ->
+  r <= 'a[r]_1 + / ('a[r]_2 + / (2 * 'a[r]_3)).
 Proof.
 move=> rI r_pos mH aH.
 have aH1 : 1 <= 'a[r]_3 by apply: IZR_le; lia.
@@ -795,7 +796,7 @@ apply: Rmod1_0L1 (_ : _ <= _ <= 1 - (1 - ('t[r]_3 + 't[r]_2))).
   rewrite halton_1 halton_rec; last by apply: irrational_elt_neq_0.
   rewrite halton_1 halton_0 elt2_mhalf // Rmult_1_l.
   have Hr :  r <= 'a[r]_1 + / ('a[r]_2 + / (2 * 'a[r]_3)).
-    apply: foo => //.
+    apply: elt_1_2_ineq => //.
     by have := ostro_bound _ m 3 rI r_pos; lia.
   rewrite elt2_mhalf // in Hr.  
   have Hf : 0 < 'a[r]_3.
