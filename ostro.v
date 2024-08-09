@@ -17,6 +17,52 @@ Definition bostro r (n : nat) : nat :=
 Local Notation " 'bo[ r , n ]" := (bostro r n) 
   (at level 10, format " ''bo[' r ,  n ]").
 
+(* Complete quotient *)
+Fixpoint zeta r i := 
+  if i is j.+1 then / (zeta r j - 'a[r]_i) else r.
+
+Local Notation " 'z[ r ]_ k " := (zeta r k) 
+  (at level 10, format " ''z[' r ]_ k ").
+
+Lemma zeta_0 r : 'z[r]_0 = r.
+Proof. by []. Qed.
+
+Lemma zeta_rec r k :  'z[r]_k  =  'a[r]_k.+1 + /  'z[r]_k.+1 .
+Proof. by rewrite /= Rinv_inv; lra. Qed.
+
+Lemma pair_zetaProp r k : 
+ 'a[r]_k.+1 = `[zeta r k] /\ zeta (/ `{r}) k = / `{zeta r k}.
+Proof.
+elim: k r => [|k IH] r; first by rewrite elt_1.
+have [IHr1 IHr2] := IH r.
+have [IHir1 IHir2] := IH (/ `{r}).
+split; last by rewrite /= IHir1 IHr2 IHr1.
+have [re0|rneq0] := Req_dec `{r} 0.
+  rewrite eltE_z //=.
+  suff -> : 'z[r]_k = 'a[r]_k.+1 by rewrite Rminus_diag Rinv_0 ZfloorZ.
+  elim: (k) => [|k1 IH1].
+    rewrite zeta_0 elt_1.
+    by rewrite /frac_part in re0; lra.
+  rewrite eltE_z //= IH1.
+  by rewrite  Rminus_diag Rinv_0.
+rewrite /=.
+rewrite eltE /=; first by rewrite IHir1 IHr2 IHr1.
+by move=> H; case: (irrational_IZR 0); rewrite -H; apply: irrational_frac.
+Qed.
+
+Lemma zeta_frac_part r k : 'a[r]_k.+1 = `[ 'z[r]_k].
+Proof. by have [] := pair_zetaProp r k. Qed.
+
+Lemma zeta_inv r k : 'z[/ `{r}]_k  = / `{'z[r]_k}.
+Proof. by have [] := pair_zetaProp r k. Qed.
+
+Lemma zeta_pos r k : 0 <= r -> 0 <= zeta r k.
+Proof.
+elim: k r => //= k IH r r_pos.
+rewrite zeta_frac_part -[_ - _]/(`{ 'z[r]_k }).
+apply: Rinv_0_le_compat.
+by have := frac_bound (zeta r k); lra.
+Qed.
 
 Fixpoint mko_list (r : R) (n : nat) (v : Z) : list Z :=
   if n is n1.+1 then
@@ -722,48 +768,6 @@ apply: Rmult_le_compat_r; first by apply: halton_pos.
 by apply: IZR_le; have := ostro_bound r m 3 rI r_pos; lia.
 Qed.
 
-Fixpoint zeta r i := 
-  if i is j.+1 then / (zeta r j - 'a[r]_i) else r.
-
-Lemma zeta_0 r : zeta r 0 = r.
-Proof. by []. Qed.
-
-Lemma zeta_rec r k : zeta r k = 'a[r]_k.+1 + / zeta r k.+1.
-Proof. by rewrite /= Rinv_inv; lra. Qed.
-
-Lemma pair_zetaProp r k : 
- 'a[r]_k.+1 = `[zeta r k] /\ zeta (/ `{r}) k = / `{zeta r k}.
-Proof.
-elim: k r => [|k IH] r; first by rewrite elt_1.
-have [IHr1 IHr2] := IH r.
-have [IHir1 IHir2] := IH (/ `{r}).
-split; last by rewrite /= IHir1 IHr2 IHr1.
-have [re0|rneq0] := Req_dec `{r} 0.
-  rewrite eltE_z //=.
-  suff -> : zeta r k = 'a[r]_k.+1 by rewrite Rminus_diag Rinv_0 ZfloorZ.
-  elim: (k) => [|k1 IH1].
-    rewrite zeta_0 elt_1.
-    by rewrite /frac_part in re0; lra.
-  rewrite eltE_z //= IH1.
-  by rewrite  Rminus_diag Rinv_0.
-rewrite /=.
-rewrite eltE /=; first by rewrite IHir1 IHr2 IHr1.
-by move=> H; case: (irrational_IZR 0); rewrite -H; apply: irrational_frac.
-Qed.
-
-Lemma zeta_frac_part r k : 'a[r]_k.+1 = `[zeta r k].
-Proof. by have [] := pair_zetaProp r k. Qed.
-
-Lemma zeta_inv r k : zeta (/ `{r}) k = / `{zeta r k}.
-Proof. by have [] := pair_zetaProp r k. Qed.
-
-Lemma zeta_pos r k : 0 <= r -> 0 <= zeta r k.
-Proof.
-elim: k r => //= k IH r r_pos.
-rewrite zeta_frac_part -[_ - _]/(`{zeta r k}).
-apply: Rinv_0_le_compat.
-by have := frac_bound (zeta r k); lra.
-Qed.
 
 Lemma elt_1_2_ineq r : 
   irrational r -> 0 <= r -> (0 < 'a[r]_3)%Z -> / 2 < `{r} ->
