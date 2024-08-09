@@ -36,6 +36,12 @@ Qed.
 
 (* Some auxillary facts                                                       *)
 
+Fact Rinv_0_le_compat r : 0 <= r -> 0 <= /r.
+Proof.
+have [->|r_neq0] := Req_dec r 0; first by rewrite Rinv_0; lra.
+move=> r_pos; apply/Rlt_le/Rinv_0_lt_compat; lra.
+Qed.
+
 Fact INR0 : 0%N = 0 :> R.
 Proof. by rewrite /nsINR. Qed.
 
@@ -140,7 +146,7 @@ Qed.
 (* Fractional part                                                            *)
 Definition frac_part x := x - Zfloor x.
 
-Notation "`{ r }" := (frac_part r).
+Notation "`{ r }" := (frac_part r) (format "`{ r }").
 
 Lemma frac_bound x : 0 <= `{x} < 1.
 Proof. rewrite /frac_part; have := Zfloor_bound x; lra. Qed.
@@ -366,7 +372,7 @@ move=> rI p q pqE; have [] := rI q p.
 by rewrite -[RHS]Rinv_inv -pqE Rinv_div.
 Qed.
 
-Lemma irrational_frac r : irrational r -> irrational `{ r}.
+Lemma irrational_frac r : irrational r -> irrational `{r}.
 Proof.
 move=> rI p q pqE.
 have rE : r = `[r] + `{r} by rewrite /frac_part; lra.
@@ -378,7 +384,7 @@ rewrite {2}rE plus_IZR mult_IZR Rdiv_plus_distr pqE.
 by field.
 Qed.
 
-Lemma irrational_frac_rev r : irrational `{ r} -> irrational r.
+Lemma irrational_frac_rev r : irrational `{r} -> irrational r.
 Proof.
 move=> rI p q pqE.
 have rE : r = `[r] + `{r} by rewrite /frac_part; lra.
