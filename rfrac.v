@@ -339,13 +339,13 @@ have := denom_spos n r; have := denom_spos n.+1 r; have := elt_pos r n.+1.
 by nia.
 Qed.
 
-Lemma irrational_denom_lt n r : irrational r -> ('q[r]_n.+2 < 'q[r]_n.+3)%Z.
+Lemma irrational_denom_ltS n r : irrational r -> ('q[r]_n.+2 < 'q[r]_n.+3)%Z.
 Proof.
 move=> rI; apply: denom_lt; first by apply: irrational_elt_neq_0.
 by lia.
 Qed.
 
-Lemma denom_le n r : ('q[r]_n <= 'q[r]_n.+1)%Z.
+Lemma denom_leS n r : ('q[r]_n <= 'q[r]_n.+1)%Z.
 Proof.
 case: n => [|n]; first by rewrite denom_0 denom_1.
 have [aZ|] := (Z.eq_dec ('a[r]_n.+2) 0%Z); first by rewrite denom_id; lia.
@@ -353,12 +353,29 @@ case: n => [aD|n aD]; last by apply/Z.lt_le_incl/denom_lt; lia.
 by rewrite denom_rec // denom_1 denom_0; have := elt_pos r 0; lia.
 Qed.
 
+Lemma denom_le r i j : (i <= j)%nat -> ( 'q[r]_i <= 'q[r]_j)%Z.
+Proof.
+move=> iLj; rewrite -(subnK iLj).
+elim: (_ - _)%nat => [|k IH]; first by rewrite add0n; lia.
+by apply: Z.le_trans IH (denom_leS _ _).
+Qed.
+
+Lemma irrational_denom_lt r i j : 
+  irrational r -> (2 <= i < j)%nat ->  ('q[r]_i < 'q[r]_j)%Z.
+Proof.
+move=> rI.
+case: i => // [] [//|i] /andP[_] iLj; rewrite -(subnK iLj).
+case: (_ - _)%nat => [|k]; first by apply: irrational_denom_ltS.
+apply: Z.lt_le_trans (irrational_denom_ltS _ _ rI) _.
+by apply: denom_le; rewrite leq_addl.
+Qed.
+
 Lemma irrational_denom_lbound n r :
   irrational r -> (Z.of_nat n <= 'q[r]_n.+1)%Z.
 Proof.
 move=> rI; elim: n => [|[|n]IH]; first by rewrite /= denom_1; lia.
 - by rewrite /= -(denom_1 r); apply: denom_le.
-have := irrational_denom_lt n _ rI; lia.
+have := irrational_denom_ltS n _ rI; lia.
 Qed.
 
 Lemma denom_2_eq_1 r : ('a[r]_ 2 <= 1 -> 'q[r]_2 = 1)%Z.
@@ -498,7 +515,8 @@ have [/halton_eq_0->|aD1] := (Z.eq_dec ('a[r]_n.+2) 0%Z).
   by apply: halton_gt_0.
 have tn_pos := halton_gt_0 _ _ aD1.
 have el_pos := elt_pos r n.
-have [/elt_eq_0_prevN1 F4 |/halton_gt_0] : 'a[r]_n.+3  = 0%Z \/ 'a[r]_n.+3  <> 0%Z by lia.
+have [/elt_eq_0_prevN1 F4 |/halton_gt_0] :
+   'a[r]_n.+3  = 0%Z \/ 'a[r]_n.+3  <> 0%Z by lia.
   have := halton_pos n.+2 r.
   rewrite halton_rec //.
   suff : (2%Z <= 'a[r ]_ n.+2)%R by rewrite /=; nra.
@@ -598,7 +616,8 @@ have : 1 <= Rabs mu.
 by rewrite dE /=; case: F2 => ->; split_Rabs; psatz R 5.
 Qed.
 
-Lemma halton_floor r n : 'a[r]_n.+2 <> 0%Z -> `['t[r]_n / 't[r]_n.+1] = 'a[r]_n.+2 .
+Lemma halton_floor r n :
+  'a[r]_n.+2 <> 0%Z -> `['t[r]_n / 't[r]_n.+1] = 'a[r]_n.+2 .
 Proof.
 move=> aDZ.
 apply: Zfloor_eq; split.
@@ -622,18 +641,19 @@ rewrite /halton => [] [|]->; split_Rabs; lra.
 Qed.
 
 Lemma Rmod1_denom (n : nat) (q : Z) (r : R) :
-   (0 < q <= 'q[r ]_ n)%Z ->  `|q * r| >= `|'q[r]_n * r|.
+   (0 < q <= 'q[r]_ n)%Z ->  `|q * r| >= `|'q[r]_n * r|.
 Proof.
 move=> Lq.
-have [qE|qL] : 'q[r ]_ n.+1 = 'q[r]_n \/ ('q[r ]_ n.+1 > 'q[r]_n)%Z.
-- by have := denom_le n r; lia.
+have [qE|qL] : 'q[r]_ n.+1 = 'q[r]_n \/ ('q[r ]_ n.+1 > 'q[r]_n)%Z.
+- by have := denom_leS n r; lia.
 - have [->//|qqL] : (q = 'q[r]_n \/ q < 'q[r]_n)%Z by lia.
     by lra.
   apply: Rmod1_denom_lt; lia.
 apply: Rmod1_denom_lt; lia.
 Qed.
 
-Lemma Rmod1_halton_1 (n : nat) (r : R) : 'a[r]_2 = 1%Z -> `|'q[r]_1 * r| = 't[r]_2.
+Lemma Rmod1_halton_1 (n : nat) (r : R) :
+  'a[r]_2 = 1%Z -> `|'q[r]_1 * r| = 't[r]_2.
 Proof.
 move=> aD.
 rewrite halton_rec ?aD // halton_0 halton_1 denom_1 !Rmult_1_l.
@@ -948,9 +968,9 @@ move=> iL kL qL; apply: Rge_trans (_ : 't[r, i]_n.+1 >= _); last first.
   by have := Rpower_signE n.+2; rewrite /ihalton => [] [|]->; split_Rabs; lra.
 by case: (Rmod1_def (q * r)) => ->;  apply: ihalton_min => // [[a [aH _]]];
    case: (kL a) => //; move: qL; rewrite {}aH /idenom;
-   have := denom_pos n.+1 r;have := denom_spos n.+1 r; have := denom_le n.+1 r; nia.
+   have := denom_pos n.+1 r;have := denom_spos n.+1 r; 
+   have := denom_leS n.+1 r; nia.
 Qed.
-
 
 (* Instead of using ihalton_min, we could use a more direct proof knowing that
    Rabs (r - 'p[r,i]_n.+1/'q[r, i]_n.+1) < 1 / ('q[r, i]_n.+1 'q[r]_n.+2)

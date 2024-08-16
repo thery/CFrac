@@ -12,10 +12,6 @@ Local Notation " 'q[ r ]_ n" := (denom r n)
   (at level 10, format " ''q[' r ]_ n").
 Local Notation " 't[ r ]_ n " := (halton r n) 
   (at level 10, format  " ''t[' r ]_ n ").
-Definition bostro r (n : nat) : nat := 
- [arg min_(i < ord_max | (Z.of_nat n <? 'q[r]_(i: 'I_(n.+4)))%Z == true) i].-1.
-Local Notation " 'bo[ r , n ]" := (bostro r n) 
-  (at level 10, format " ''bo[' r ,  n ]").
 
 (* Complete quotient *)
 Fixpoint zeta r i := 
@@ -79,6 +75,12 @@ Proof.
 by elim: n => //= n IH; rewrite Zdiv.Zdiv_0_l Zdiv.Zmod_0_l IH.
 Qed.
 
+Lemma mko_list_denom r n : mko_list r n.+1 ('q[r]_n.+1) = 1%Z :: nseq n 0%Z.
+Proof.
+have q_pos : (0 < 'q[r]_n.+1)%Z by apply: denom_spos.
+by rewrite /= Zdiv.Z_div_same ?Zdiv.Z_mod_same ?mko_list0 //; lia.
+Qed.
+
 Lemma mko_list_le (r : R) (n : nat) (v : Z) i :
   irrational r -> 0 <= r ->
   (0 <= v < 'q[r]_n.+1 -> 0 <=  nth 0 (mko_list r n v) i <= 'a[r]_(n.+1 - i))%Z. 
@@ -106,7 +108,7 @@ have q_pos : 'q[r]_n1.+2  <> 0%Z by have := denom_spos n1.+1 r; lia.
 have <- : (('a[r]_n1.+3 * 'q[r]_n1.+2 + ('q[r]_n1.+1 - 1)) /  'q[r]_n1.+2 = 
             'a[r]_n1.+3)%Z.
   rewrite Z.div_add_l // Z.div_small; first by lia.
-  by have := denom_spos n1 r; have := denom_le n1.+1 r; lia.
+  by have := denom_spos n1 r; have := denom_leS n1.+1 r; lia.
 apply: Z.div_le_mono; first by apply: denom_spos.
 rewrite denom_rec in vLq; first by lia.
 by apply: irrational_elt_neq_0.
@@ -168,15 +170,41 @@ suff -> : (n.+2 - u.+1 = (n.+1 - u.+1).+1)%nat by [].
 by rewrite subSn // -ltnS.
 Qed.
 
+Definition bostro r (n : nat) : nat := 
+  [arg min_(i < ord_max | (Z.of_nat n <? 'q[r]_(i: 'I_(n.+4)))%Z == true) i].-1.
+
+Local Notation " 'bo[ r , n ]" := (bostro r n) 
+  (at level 10, format " ''bo[' r ,  n ]").
+
 Lemma bostro_0 r : bostro r 0 = 0%nat.
-Proof.
-rewrite /bostro.
-case: arg_minnP => /= [|i Hi].
-  by case: Z.ltb_spec (denom_spos 2 r) => //=; lia.
-have O4 : (1 < 4)%nat by [].
-move=> /(_ (Ordinal O4)) /=; rewrite denom_1 => /(_ isT).
-by case: (i) => // [] [|[]].
+Proof. 
+rewrite /bostro; case: arg_minnP => /=; last first.
+  case => [] [|[|n]] //= _ _.
+  move=> /(_ (Ordinal (isT : 1 < 4)%nat)) /=.
+  by rewrite denom_1 ltnS ltn0 => /(_ isT).
+apply/eqP/Z.ltb_lt.
+apply: Z.lt_le_trans (_ : 'q[r]_1 <= _)%Z; first by rewrite denom_1; lia.
+by apply: denom_le.
 Qed.
+
+Lemma bostro_1 r : 
+ irrational r -> bostro r 1 = (if 'q[r]_2 == 1%Z then 2%nat else 1%nat).
+Proof. 
+move=> rI; rewrite /bostro; case: arg_minnP => /=.
+  apply/eqP/Z.ltb_lt => /=.
+  rewrite -(denom_1 r).
+  apply: Z.le_lt_trans (irrational_denom_ltS _ _ _) => //.
+  by apply: denom_le.
+case => [] [|[|[|i]]] //= _ /eqP/Z.ltb_lt Hi; first by case: eqP; lia.
+case: ('q[r]_2 =P 1%Z) => [Hq|Hnq] Hj.
+  suff : (i.+2 < 3)%nat by case: (i).
+  apply: (Hj (Ordinal (isT : (3 < 5)%nat))).
+  apply/eqP/Z.ltb_lt => /=.
+  by rewrite -Hq; apply: irrational_denom_ltS.
+suff : (i.+2 < 2)%nat by case: (i).
+apply: (Hj (Ordinal (isT : (2 < 5)%nat))).
+apply/eqP/Z.ltb_lt => /=. 
+by have := denom_leS 1 r; rewrite denom_1; lia.
 
 Lemma bostro_spos r n : irrational r -> (0 < bostro r n.+1)%nat.
 Proof.
@@ -204,8 +232,21 @@ rewrite /bostro; case: arg_minnP => /=; last first.
   by rewrite ltnn.
 suff : (Z.of_nat n < 'q[r]_n.+3)%Z by case: Z.ltb_spec => //=; lia.
 apply: Z.le_lt_trans (irrational_denom_lbound _ _ iR) _.
-apply: Z.le_lt_trans (irrational_denom_lt _ _ iR).
+apply: Z.le_lt_trans (irrational_denom_ltS _ _ _) => //.
 by apply: denom_le.
+Qed.
+
+Lemma bostro_denom r n :
+  irrational r -> (1 < n)%nat -> bostro r (Z.to_nat ('q[r]_n)) = n.
+Proof.
+move=> rI; case: n => //= [] [//|n] _.
+have := bostroP r (Z.to_nat ('q[r]_n.+2)) rI.
+rewrite Z2Nat.id; last by apply: denom_pos.
+set u := 'bo[_,_] => Hu.
+case: (ltngtP u n.+2) => // Hl ; last first.
+  suff : ('q[r]_n.+2 <  'q[r]_u)%Z by lia.
+  by apply: irrational_denom_lt.
+by have := denom_le r _ _ Hl; lia.
 Qed.
 
 Definition ostro r n i := 
@@ -368,12 +409,13 @@ by rewrite [RHS]Monoid.mulmC.
 Qed.
 
 Lemma bound_left_big m r i : 
-  irrational r -> 0 <= r -> (i <  'bo[r, m].+1)%nat ->'o[r, m]_i.+1 <> 0%Z -> 
+  irrational r -> 0 <= r -> (i <= 'bo[r, m])%nat ->'o[r, m]_i.+1 <> 0%Z -> 
   (forall j, (j < i)%nat -> 'o[r, m]_j.+1 = 0%Z) ->
   ('o[r, m]_i.+1 - 1) * 't[r]_i + 't[r]_i.+1 <=  
   Rabs (\big[Rplus/0%R]_(i < 'bo[r, m].+1) ('o[r, m]_i.+1 * 'ta[r]_i)).
 Proof.
 move=> r_irr r_pos iLbo o_neq0 o_lt.
+rewrite -ltnS in iLbo.
 have F1 j : (0 <= 'o[r, m]_j <= 'a[r]_j)%Z by apply: ostro_bound.
 have F2 : (0 <= 'o[r, m]_i.+2 <= 'a[r]_i.+2 - 1)%Z.
   have : (0 <= 'o[r, m]_i.+2 <= 'a[r]_i.+2)%Z by apply: ostro_bound.
@@ -473,6 +515,34 @@ suff : x1 <= y1 by lra.
 apply: Rmult_le_compat_r; first by apply: halton_pos.
 apply: IZR_le.
 have := F1 v.+1; lia.
+Qed.
+
+Lemma bound_left_big_alt m r i : 
+  irrational r -> 0 <= r -> (i <=  'bo[r, m])%nat ->'o[r, m]_i.+1 <> 0%Z -> 
+  (forall j, (j < i)%nat -> 'o[r, m]_j.+1 = 0%Z) ->
+  't[r]_('bo[r, m]) <=  
+  Rabs (\big[Rplus/0%R]_(i < 'bo[r, m].+1) ('o[r, m]_i.+1 * 'ta[r]_i)).
+Proof.
+move=> rI r_pos iLb o_neq0 o_eq0.
+rewrite leq_eqVlt in iLb.
+have /orP[/eqP<-|{}iLb] := iLb.
+  rewrite big_ord_recr /= big1.
+    rewrite Rplus_0_l ahaltonE 2!Rabs_mult pow_1_abs Rmult_1_l !Rabs_pos_eq.
+    - suff : (1 <= 'o[r, m]_i.+1) by have := halton_pos i r; nra.
+      by apply: IZR_le; have := ostro_bound _ m i.+1 rI r_pos; lia.
+    - by apply: halton_pos.
+    by apply: IZR_le; have := ostro_bound _ m i.+1 rI r_pos; lia.
+  by case => j /= jLi _; rewrite o_eq0 //; lra.
+rewrite -ltnS in iLb.
+apply: Rle_trans (bound_left_big _ _ _ _ _ (ltnW iLb) _ _) => //.
+suff: 't[r]_( 'bo[r, m])  <=  't[r]_i.+1.
+  suff : 0 <= ( 'o[r, m]_i.+1 - 1) *  't[r]_i by lra.
+  apply: Rmult_le_pos; last by apply: halton_pos.
+  suff : 1 <= 'o[r, m]_i.+1 by lra.
+  by apply: IZR_le; have := ostro_bound _ m i.+1 rI r_pos; lia.
+rewrite ltnS leq_eqVlt in iLb.
+have /orP[/eqP<-|{}iLb] := iLb; first by lra.
+by apply/Rlt_le/halton_lt; first by apply: irrational_elt_neq_0.
 Qed.
 
 Lemma bound_right_big m r i : 
@@ -768,7 +838,6 @@ apply: Rmult_le_compat_r; first by apply: halton_pos.
 by apply: IZR_le; have := ostro_bound r m 3 rI r_pos; lia.
 Qed.
 
-
 Lemma elt_1_2_ineq r : 
   irrational r -> 0 <= r -> (0 < 'a[r]_3)%Z -> / 2 < `{r} ->
   r <= 'a[r]_1 + / ('a[r]_2 + / (2 * 'a[r]_3)).
@@ -832,3 +901,12 @@ apply: Rle_trans (bound_right_big _ _ _ _ _ _ F1 _) _ => //.
 by rewrite o2_eq1; lra.
 Qed.
 
+Lemma ostro_best_approx r n : 
+  irrational r -> 0 <= r -> (0 < n)%nat -> 
+  't[r]_(bostro r n) <= `| Z.of_nat n * r|.
+Proof.
+move=> rI r_pos n_pos.
+have [arn2_eq0|arn2_neq0] := Z.eq_dec ('o[r, n]_2) 0%Z.
+  have [arn3_eq0|arn3_neq0] := Z.eq_dec ('o[r, n]_3) 0%Z.
+    rewrite Rmod1_ostro_Rabs_3p //.
+Admitted.
