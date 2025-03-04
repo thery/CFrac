@@ -16,7 +16,8 @@ Fixpoint  fib_rec (n : nat) {struct n} : nat :=
     else 1
   else 0.
 
-Definition fib := nosimpl fib_rec.
+Definition fib := fib_rec.
+Arguments fib : simpl never.
 
 Lemma fibE : fib = fib_rec.
 Proof. by []. Qed.
@@ -37,7 +38,8 @@ Fixpoint lin_fib_rec (a b n : nat) {struct n} : nat :=
       else b
     else a.
 
-Definition lin_fib := nosimpl lin_fib_rec.
+Definition lin_fib := lin_fib_rec.
+Arguments lin_fib : simpl never.
 
 Lemma lin_fibE : lin_fib = lin_fib_rec.
 Proof. by []. Qed.
@@ -195,7 +197,8 @@ Fixpoint lucas_rec (n : nat) {struct n} : nat :=
     else 1
   else 2.
 
-Definition lucas := nosimpl lucas_rec.
+Definition lucas := lucas_rec.
+Arguments lucas : simpl never.
 
 Lemma lucasE : lucas = lucas_rec.
 Proof. by []. Qed.
@@ -252,10 +255,11 @@ Proof.
 by move=> n; rewrite -addnn -addSn fib_add // addnC.
 Qed.
 
-Lemma fib_square: forall n, (fib n)^2 = if odd n then (fib n.+1 * fib n.-1).+1
-                                        else (fib n.+1 * fib n.-1).-1.
+Lemma fib_square n :
+  ((fib n)^2 = if odd n then (fib n.+1 * fib n.-1).+1
+                                        else (fib n.+1 * fib n.-1).-1)%N.
 Proof.
-case=> [|n] //; move: (fib_sub (n.+1) n (leqnSn _)).
+case: n => [|n] //; move: (fib_sub (n.+1) n (leqnSn _)).
 rewrite subSn // subnn fib1 -[in odd _.+1]add1n oddD addTb.
 case: odd=> H1; last first.
   by rewrite -[(_ * _).+1]addn1 [in _ + _]H1 addnC subnK //

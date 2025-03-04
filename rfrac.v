@@ -120,6 +120,15 @@ case: (irrational_IZR 0); rewrite -ir_eq0.
 by apply/irrational_frac/irrational_inv/irrational_frac.
 Qed.
 
+Lemma elt2_mhalf r : irrational r -> 0 <= r -> /2  < `{r} -> 'a[r]_2 = 1%Z.
+Proof.
+move=> rI r_pos r_half.
+rewrite eltE ?elt_1 //; last by lra.
+apply: Zfloor_eq; split; first by apply/Rlt_le/frac_inv_gt_1; lra.
+have -> : 1 + 1 = / / 2 by lra.
+by apply: Rinv_0_lt_contravar; lra.
+Qed.
+
 Lemma gr_elt n : (0 < n)%nat -> 'a[gr]_ n = 1%Z.
 Proof.
 elim: n => //= [] [|n] IH _; first by rewrite elt_1 floor_grE.
@@ -293,6 +302,9 @@ Proof. by move=> H; have [] := num_denom_rec n r H. Qed.
 Lemma denom_rec n r : ('a[r]_ n.+2 <> 0 ->
  'q[r]_n.+2 = 'a[r]_ n.+2 * 'q[r]_n.+1 + 'q[r]_n)%Z.
 Proof. by move=> H; have [] := num_denom_rec n r H. Qed.
+
+Lemma denom_2 r : 'a[r]_2 <> 0%Z -> 'q[r]_2 = 'a[r]_2.
+Proof. by move=> ar_neq0; rewrite denom_rec // denom_1 denom_0; lia. Qed.
 
 Lemma denom_gr_fib n : 'q[gr]_n = Z.of_nat (fib n).
 Proof.
@@ -508,6 +520,12 @@ case: n => [|n]; first by rewrite halton_0; lra.
 by have [/halton_eq_0|/halton_gt_0] := (Z.eq_dec ('a[r]_n.+2) 0%Z); lra.
 Qed.
 
+Lemma irrational_halton_pos r n : irrational r -> 0 < 't[r]_ n.
+Proof.
+move=> Hr; case: n => [|n] /=; first by rewrite halton_0; lra.
+by apply/halton_gt_0/irrational_elt_neq_0.
+Qed.
+
 Lemma halton_ltS n r : 'a[r]_ n.+1 <> 0%Z -> 't[r]_ n.+1 < 't[r]_ n.
 Proof.
 move=> aD.
@@ -536,6 +554,31 @@ rewrite !addnS /=.
 have [aD1|/halton_ltS] := (Z.eq_dec ('a[r]_(k + n).+2) 0%Z).
   by rewrite !(halton_eq_0_ge _ _ _ aD1) //; lra.
 by rewrite addSn; lra.
+Qed.
+
+Lemma elt_eq_0_next_le m n r : 
+  (n.+1 < m)%N -> 'a[r]_n.+2 = 0%Z -> 'a[r]_m = 0%Z.
+Proof.
+move=> nLm a_eq0.
+have -> : (m = (m - n.+2 + n).+2)%nat by rewrite -!addnS subnK.
+elim: (_ - _)%nat => // k Hk.
+by rewrite addSn; apply: elt_eq_0_next.
+Qed.
+
+Lemma halton_le m n r : (n <= m)%N ->  't[r]_m <= 't[r]_n.
+Proof.
+rewrite leq_eqVlt => /orP[/eqP->|nLm]; first by lra.
+have [a_eq0|a_neq0] := Z.eq_dec ('a[r]_n.+1) 0%Z; last first.
+  by apply/Rlt_le/halton_lt.
+case: n nLm a_eq0 => [|n] nLm a_eq0.
+  case: m nLm => [|m] nLm; first by lra.
+  have [a'_eq0|a'_neq0] := Z.eq_dec ('a[r]_m.+2) 0%Z.
+    by rewrite halton_eq_0 // halton_0; lra.
+  by have := halton_bound _ _ a'_neq0; rewrite halton_0; lra.
+case: m nLm => // m nLm.
+rewrite !halton_eq_0 //; first by lra.
+apply: elt_eq_0_next_le a_eq0.
+by apply: leq_trans nLm _.
 Qed.
 
 Lemma frac_denom_neq0 n r : 'a[r]_n.+2 <> 0%Z -> `{'q[r]_n.+1 * r} <> 0.
@@ -737,6 +780,20 @@ have nnE : ~~ odd n.+2 by rewrite /= nE.
 have :=  denom_max _ _ _ H2 F5 nnE.
 rewrite !halton_frac //= nE /=; lra.
 Qed.
+
+Definition ahalton r n := 'q[r]_ n * r - 'p[r]_ n.
+Notation " 'ta[ r ]_ n " := (ahalton r n) 
+  (at level 10, format  " ''ta[' r ]_ n ").
+
+Lemma ahaltonE r n :  'ta[ r]_ n = (- 1) ^ n.+1 * 't[r]_n.
+Proof.
+by rewrite /ahalton /halton -Rmult_assoc -pow_add 
+           plusE addnn -mul2n pow_1_even Rmult_1_l.
+Qed.
+
+Lemma ahalton_rec r n : 
+  'a[r]_n.+2 <> 0%Z -> 'ta[r]_n.+2 = 'a[r]_n.+2 * 'ta[r]_n.+1 + 'ta[r]_n.
+Proof. by move=> ar_neq0; rewrite !ahaltonE halton_rec //=; ring. Qed.
 
 Definition inum r n i := (i * 'p[r ]_ n.+1 + 'p[r ]_ n)%Z.
 

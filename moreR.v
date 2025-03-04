@@ -11,7 +11,9 @@ Open Scope R_scope.
 
 Coercion IZR : Z >-> R.
 
-Definition nsINR := nosimpl INR.
+Definition nsINR := INR.
+Arguments nsINR  : simpl never.
+
 Coercion nsINR : nat >-> R.
 
 Fact RplusA : associative (Rplus).
@@ -62,6 +64,16 @@ Qed.
 
 Lemma big_const_R m n r : \big[Rplus/0]_(m <= i < n) r =  (n - m)%N * r.
 Proof. by rewrite big_const_nat iterR_cons. Qed.
+
+Lemma up_IZR z : up (IZR z) = (z + 1)%Z.
+Proof.
+apply sym_equal; apply tech_up; rewrite plus_IZR; lra.
+Qed.
+
+Lemma up_succ r : up (r + 1)%R = (up r + 1)%Z.
+Proof.
+apply sym_equal; apply tech_up; rewrite plus_IZR; assert (H := archimed r); lra.
+Qed.
 
 (******************************************************************************)
 (* Borrowed to flocq                                                          *)
@@ -366,10 +378,11 @@ Qed.
 
 Definition irrational r := forall p q : Z, IZR p / IZR q <> r.
 
-Lemma irrational_inv r : irrational r -> irrational (/ r).
+Lemma irrational_inv r : irrational (/r) <-> irrational r.
 Proof.
-move=> rI p q pqE; have [] := rI q p.
-by rewrite -[RHS]Rinv_inv -pqE Rinv_div.
+split => H p q pqE; have := H q p.
+  by rewrite -pqE Rinv_div.
+by rewrite -Rinv_div pqE Rinv_inv.
 Qed.
 
 Lemma irrational_frac r : irrational r -> irrational `{r}.
