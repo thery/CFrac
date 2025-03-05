@@ -50,7 +50,7 @@ Proof. by []. Qed.
 Definition elt r n := 
   let: (a, p, q) := approx n r in a.
 
-Local Notation " 'a[ r ]_ n" := (elt r n) (at level 10, format " ''a[' r ]_ n").
+Notation " 'a[ r ]_ n" := (elt r n) (at level 10, format " ''a[' r ]_ n").
 
 Lemma elt_0 r : 'a[r]_ 0 = 0%Z.
 Proof. by []. Qed.
@@ -161,7 +161,7 @@ Qed.
 Definition num r n := 
   let: (a, p, q) := approx n r in p.
 
-Local Notation " 'p[ r ]_ n" := (num r n) (at level 10, format " ''p[' r ]_ n").
+Notation " 'p[ r ]_ n" := (num r n) (at level 10, format " ''p[' r ]_ n").
 
 Lemma num_0 r : 'p[r]_ 0 = 1%Z.
 Proof. by []. Qed.
@@ -180,7 +180,7 @@ Qed.
 Definition denom r n := 
   let: (a, p, q) := approx n r in q.
 
-Local Notation " 'q[ r ]_ n" := (denom r n) 
+Notation " 'q[ r ]_ n" := (denom r n) 
   (at level 10, format " ''q[' r ]_ n").
 
 Lemma denom_0 r : 'q[r]_ 0 = 0%Z.
@@ -451,7 +451,7 @@ Qed.
 
 Definition halton r n := (-1) ^ n.+1 * ('q[r]_ n * r - 'p[r]_ n).
 
-Local Notation " 't[ r ]_ n " := (halton r n)
+Notation " 't[ r ]_ n " := (halton r n)
   (at level 10, format " ''t[' r ]_ n").
 
 Lemma halton_0 r : 't[r]_ 0 = 1.
@@ -816,7 +816,7 @@ Proof. by move=> ar_neq0; rewrite !ahaltonE halton_rec //=; ring. Qed.
 
 Definition inum r n i := (i * 'p[r ]_ n.+1 + 'p[r ]_ n)%Z.
 
-Local Notation " 'p[ r , i ]_ n" := (inum r n i) 
+Notation " 'p[ r , i ]_ n" := (inum r n i) 
   (at level 10, format " ''p[' r ,  i ]_ n").
 
 Lemma inum_0r r n : 'p[r , 0]_ n = 'p[r]_ n.
@@ -842,12 +842,12 @@ Proof.
 case: (Req_EM_T `{r} 0) => H.
   by rewrite /inum !numE_z // elt_1; lia.
 rewrite eltE // elt_1.
-by have := frac_ideninv_floor_ge_1 r H; lia.
+by have := frac_inv_floor_ge_1 r H; lia.
 Qed.
 
 Definition idenom r n i := (i * 'q[r ]_ n.+1 + 'q[r ]_ n)%Z.
 
-Local Notation " 'q[ r , i ]_ n" := (idenom r n i) 
+Notation " 'q[ r , i ]_ n" := (idenom r n i) 
   (at level 10, format " ''q[' r ,  i ]_ n").
 
 Lemma idenom_0r r n : 'q[r , 0]_ n = 'q[r]_ n.
@@ -894,7 +894,7 @@ Qed.
 Definition ihalton r n i := (-1) ^ n.+1 * ('q[r, i]_ n * r - 'p[r, i]_ n).
 
 (* t for theta *)
-Local Notation " 't[ r , i ]_ n " := (ihalton r n i) 
+Notation " 't[ r , i ]_ n " := (ihalton r n i) 
   (at level 10, format  " ''t[' r ,  i ]_ n ").
 
 Lemma ihalton_0 r i : 't[r, i]_ 0 = 1 - i * `{r}.
