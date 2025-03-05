@@ -334,9 +334,22 @@ have -> : `[r] = 0%Z by apply: Zfloor_eq; lra.
 by rewrite /Rmin; case: Rle_dec; lra.
 Qed.
 
-
 Lemma Rmod1_IZR (z : Z) :  `|z| = 0.
 Proof. by rewrite /Rmod1 fracZ /Rmin; case: Rle_dec; lra. Qed.
+
+Lemma Rmod1_0Lt1 r a b : 0 <= a <= b -> a < Rabs r < 1 - b -> a < `|r|.
+Proof.
+move=> aLb rB.
+have [r_eq1|r_neq1] := Req_dec r 1.
+  rewrite r_eq1 Rabs_pos_eq in rB; last by lra.
+  by rewrite r_eq1 Rmod1_IZR; lra.
+rewrite /Rmod1 /frac_part.
+have [r_neg|r_pos] := Rle_dec 0 r; last first.
+  have -> : `[r] = (-1)%Z by apply: Zfloor_eq; split_Rabs; lra.
+  by rewrite /Rmin; case: Rle_dec; split_Rabs; lra.
+have -> : `[r] = 0%Z by apply: Zfloor_eq; split_Rabs; lra.
+by rewrite /Rmin; case: Rle_dec; split_Rabs; lra.
+Qed.
 
 Lemma Rmod1_0L1 r a b : 0 <= a <= b -> a <= Rabs r <= 1 - b -> a <= `|r|.
 Proof.
