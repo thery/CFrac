@@ -3,9 +3,28 @@ From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun.
 From mathcomp Require Import fintype bigop seq.
 Require Import Zpower moreR fib.
 
-Open Scope R_scope.
+(******************************************************************************)
+(* This file contains some basic notions of continued fraction :              *)
+(*                                                                            *)
+(*  'a[r]_n    = the n^th element of the continued fraction of r              *)
+(*                                                                            *)
+(*  'p[r]_n    = the numerator of the n^th convergent of r                    *)
+(*                                                                            *)
+(*  'q[r]_n    = the denomerator of the n^th convergent of r                  *)
+(*                                                                            *)
+(*  't[r]_n    = the n^th halton distance of r                                *)
+(*                                                                            *)
+(*  'ta[r]_n   = the n^th halton distance of r                                *)
+(*                                                                            *)
+(*  'p[r,i]_n  = the numerator of the n^th semi-convergent of r at point i    *)
+(*                                                                            *)
+(*  'q[r,i]_n  = the denominator of the n^th semi-convergent of r at point i  *)
+(*                                                                            *)
+(*  't[r,i]_n  = the n^th halton distance of r at point i                     *)
+(*                                                                            *)
+(******************************************************************************)
 
-(**********************************************************)
+Open Scope R_scope.
 
 (* The approximation process *)
 Fixpoint approx (n : nat) (r : R) :=
@@ -823,7 +842,7 @@ Proof.
 case: (Req_EM_T `{r} 0) => H.
   by rewrite /inum !numE_z // elt_1; lia.
 rewrite eltE // elt_1.
-by have := frac_inv_floor_ge_1 r H; lia.
+by have := frac_ideninv_floor_ge_1 r H; lia.
 Qed.
 
 Definition idenom r n i := (i * 'q[r ]_ n.+1 + 'q[r ]_ n)%Z.
