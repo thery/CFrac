@@ -5,18 +5,25 @@ Require Import Zpower.
 Require Import moreR moreZ rfrac fib.
 Open Scope R_scope.
 
-Local Notation " 'a[ r ]_ n" := (elt r n) (at level 10, format " ''a[' r ]_ n").
-Local Notation " 'p[ r ]_ n" := (num r n) (at level 10, format " ''p[' r ]_ n").
-Local Notation " 'q[ r ]_ n" := (denom r n) 
-  (at level 10, format " ''q[' r ]_ n").
-Local Notation " 't[ r ]_ n " := (halton r n) 
-  (at level 10, format  " ''t[' r ]_ n ").
+(******************************************************************************)
+(* This file contains some basic properties of Ostrovski numeration :         *)
+(*                                                                            *)
+(*  'z[r]_n    = the n^th complete quotient of r                              *)
+(*                                                                            *)
+(*  'bo[r,n]   = the bound of the summation of n in the Ostrovski numeration  *)
+(*               of base r                                                    *)
+(*  'o[r,n]_i  = the i^th element of the Ostrovski numeration of n in base r  *)
+(*               of base r                                                    *)
+(*  'mo[r,n] =   the index of the first non-zero element of the Ostrovski     *)
+(*               numeration of n in base r                                    *)
+(*                                                                            *)
+(******************************************************************************)
 
 (* Complete quotient *)
 Fixpoint zeta r i := 
   if i is j.+1 then / (zeta r j - 'a[r]_i) else r.
 
-Local Notation " 'z[ r ]_ k " := (zeta r k) 
+Notation " 'z[ r ]_ k " := (zeta r k) 
   (at level 10, format " ''z[' r ]_ k ").
 
 Lemma zeta_0 r : 'z[r]_0 = r.
@@ -172,7 +179,7 @@ Qed.
 Definition bostro r (n : nat) : nat := 
   [arg min_(i < ord_max | (Z.of_nat n <? 'q[r]_(i: 'I_(n.+4)))%Z == true) i].-1.
 
-Local Notation " 'bo[ r , n ]" := (bostro r n) 
+Notation " 'bo[ r , n ]" := (bostro r n) 
   (at level 10, format " ''bo[' r ,  n ]").
 
 Lemma bostro_0 r : bostro r 0 = 0%nat.
@@ -254,7 +261,7 @@ Definition ostro r n i :=
     nth 0%Z (mko_list r (bostro r n) (Z.of_nat n)) (bostro r n - i.-1)
   else 0%Z.
 
-Local Notation " 'o[ r , n ]_ i" := (ostro r n i) 
+Notation " 'o[ r , n ]_ i" := (ostro r n i) 
   (at level 10, format " ''o[' r ,  n ]_ i").
 
 Lemma ostro_0l r n : 'o[r, 0]_n  = 0%Z.
