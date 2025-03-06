@@ -1007,8 +1007,8 @@ have [orn2_eq0|/eqP orn2_neq0] := Z.eq_dec ('o[r, n]_2) 0%Z.
   have b_gt1 : (1 < 'bo[r, n])%nat by rewrite -ltnS; apply: ostro_bostro_le.
   have [o_eq1|o_neq1] := Z.eq_dec ('o[r, n]_3) 1%Z.
     move: b_gt1; rewrite leq_eqVlt => /orP[/eqP b_eq2|b_gt2]; last first.
-      apply: Rle_trans (_ : 't[r]_3 <= _); last by apply: Rmod1_ostro_mhalf2.
-      by apply: halton_le.
+      apply: Rle_trans (_ : 't[r]_3 <= _); first by apply: halton_le.
+      by apply/Rlt_le/Rmod1_ostro_mhalf2.
     rewrite (big_ostro r n) // -b_eq2 !big_ord_recr /= big_ord0.
     rewrite ostro_1 orn2_eq0 o_eq1 !Zplus_0_l Zmult_1_l.
     rewrite denom_2 //; last by apply: irrational_elt_neq_0.
@@ -1016,7 +1016,7 @@ have [orn2_eq0|/eqP orn2_neq0] := Z.eq_dec ('o[r, n]_2) 0%Z.
     rewrite -Rmod1_halton_1 //; last by rewrite elt2_mhalf.
     by rewrite denom_1 Rmult_1_l; lra.
   apply: Rle_trans (_ : `|r| <= _); last first.
-    apply: Rmod1_ostro_mhalf1 => //.
+    apply/Rlt_le/Rmod1_ostro_mhalf1 => //.
     have /eqP := orn3_neq0.
     by have := ostro_bound r n 3 rI r_pos; lia.
   apply: Rle_trans (_ : 't[r]_2 <= _); first by apply: halton_le.
@@ -1032,6 +1032,8 @@ have [rLh|hLr] := Rle_lt_dec (/2) `{r}.
   by rewrite -rE; have /irrational_frac := rI.
 have : (0 < 'bo[r, n])%nat by rewrite -ltnS; apply: ostro_bostro_le.
 rewrite leq_eqVlt => /orP[/eqP b_eq1|b_gt1]; last first.
-  apply: Rle_trans (_ : 't[r]_2 <= _); last by apply: Rmod1_ostro_Rabs_half1.
-  by apply: halton_le.
+  apply: Rle_trans (_ : 't[r]_2 <= _); first by apply: halton_le.
+  by apply/Rlt_le/Rmod1_ostro_Rabs_half1.
+  
 Admitted.
+Search ('t[_]_ _) (`|_|).
