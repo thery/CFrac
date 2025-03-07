@@ -222,7 +222,7 @@ case: i Hi Hj => //= [] [|[|[|]]] //; rewrite denom_1.
 by case: Z.ltb_spec => //; lia.
 Qed.
 
-Lemma bostroP r n : 
+Lemma bostro_bound r n : 
   irrational r -> 
   ('q[r]_(bostro r n) <= Z.of_nat n < 'q[r]_(bostro r n).+1)%Z.
 Proof.
@@ -247,7 +247,7 @@ Lemma bostro_denom r n :
   irrational r -> (1 < n)%nat -> bostro r (Z.to_nat ('q[r]_n)) = n.
 Proof.
 move=> rI; case: n => //= [] [//|n] _.
-have := bostroP r (Z.to_nat ('q[r]_n.+2)) rI.
+have := bostro_bound r (Z.to_nat ('q[r]_n.+2)) rI.
 rewrite Z2Nat.id; last by apply: denom_pos.
 set u := 'bo[_,_] => Hu.
 case: (ltngtP u n.+2) => // Hl ; last first.
@@ -284,7 +284,7 @@ Lemma ostro_bostro_neq r n :
 Proof.
 move=> rI.
 rewrite /ostro ifT // subnn.
-case: ('bo[_,_]) (bostro_spos r n rI) (bostroP r n.+1 rI) => //= k _ Hl.
+case: ('bo[_,_]) (bostro_spos r n rI) (bostro_bound r n.+1 rI) => //= k _ Hl.
 have q_gt0 := denom_spos k r.
 apply/eqP.
 suff : (1 <= Z.pos (Pos.of_succ_nat n) /  'q[r]_k.+1)%Z.
@@ -316,7 +316,7 @@ rewrite ltnS; case: leqP => [iLb|bLi].
   rewrite subnBAC // ?subSnn ?addn1 //.
   apply.
   split; first by lia.
-  by have := bostroP r n rI; lia.
+  by have := bostro_bound r n rI; lia.
 by have := elt_ppos i.+1 r rP; lia.
 Qed.
 
@@ -329,7 +329,7 @@ move=> rI r_pos; rewrite /ostro.
 case: leqP.
   by have := elt_pos r 0; have := irrational_elt_neq_0 r 0 rI; lia.
 rewrite -denom_2; last by apply: irrational_elt_neq_0.
-case: ('bo[_,_]) (bostroP r m) => // k /(_ rI) Hk _; rewrite subSS subn0.
+case: ('bo[_,_]) (bostro_bound r m) => // k /(_ rI) Hk _; rewrite subSS subn0.
 set u := nth _ _ _; suff : (0 <= u < 'q[r]_2)%Z by lia.
 have <- : (k.+2 - k = 2)%nat by rewrite -addn2 addnC addnK.
 apply: mko_list_le_q => //; split ; first by apply: Zle_0_nat.
@@ -349,7 +349,7 @@ case E : ('bo[_,_]) => [//|i1] iL1 aH.
 rewrite subSn //; apply: mko_list_eq0 => //; last first.
   by rewrite subnA ?subSn ?subnn // (leq_trans (_ : i1 <= i1.+1)%N) //.
 split; first by lia.
-by rewrite -E; have [] := bostroP _ n rI.
+by rewrite -E; have [] := bostro_bound _ n rI.
 Qed.
 
 Lemma gr_ostro_bound (n : nat) i : (0 <=  'o[gr, n]_i <= 1)%Z. 
@@ -803,7 +803,7 @@ by case: (i : nat) iL3.
 Qed.
 
 Lemma Rmod1_ostro_Rabs_half2 m r : 
-  irrational r -> 0 <= r -> `{r} < /2 -> 
+  irrational r -> 0 <= r -> `{r} < / 2 -> 
   'o[r, m]_2 = 0%Z -> 'o[r, m]_3 != 0%Z ->
   `| Z.of_nat m * r | = 
    Rabs (\big[Rplus/0%R]_(i < 'bo[r, m].+1) ('o[r, m]_i.+1 * 'ta[r]_i)).
@@ -835,7 +835,7 @@ by rewrite halton_1.
 Qed.
 
 Lemma Rmod1_ostro_Rabs_half1 m r : 
-  irrational r -> 0 <= r -> `{r} < /2 -> 'o[r, m]_2 != 0%Z ->
+  irrational r -> 0 <= r -> `{r} < / 2 -> 'o[r, m]_2 != 0%Z ->
   't[r]_2 < `| Z.of_nat m * r |.
 Proof.
 move=> rI r_pos r_half o2_neq0; rewrite Rmod1_ostro //.
@@ -873,7 +873,7 @@ by apply: irrational_elt_neq_0.
 Qed.
 
 Lemma ostro2_mhalf m r : 
-  irrational r -> 0 <= r -> /2  < `{r} -> 'o[r, m]_2 = 0%Z.
+  irrational r -> 0 <= r -> / 2  < `{r} -> 'o[r, m]_2 = 0%Z.
 Proof.
 move=> rI r_pos r_half.
 have : ('o[r,m]_2 < 'a[r]_2)%Z by apply: ostro2_lt.
@@ -882,7 +882,7 @@ by lia.
 Qed.
 
 Lemma Rmod1_ostro_mhalf1 r m : 
-  irrational r -> 0 <= r -> /2 < `{r} -> (1 < 'o[r, m]_3)%Z ->
+  irrational r -> 0 <= r -> / 2 < `{r} -> (1 < 'o[r, m]_3)%Z ->
   `|r| < `| Z.of_nat m * r |.
 Proof.
 move=> rI r_pos r_half o3_pos; rewrite Rmod1_ostro //.
@@ -941,7 +941,7 @@ by have := Zfloor_bound (zeta r 2); lra.
 Qed.
 
 Lemma Rmod1_ostro_mhalf2 r m : 
-  irrational r -> 0 <= r -> /2 < `{r} -> ('o[r, m]_3 = 1)%Z ->
+  irrational r -> 0 <= r -> / 2 < `{r} -> ('o[r, m]_3 = 1)%Z ->
   't[r]_3 < `| Z.of_nat m * r |.
 Proof.
 move=> rI r_pos r_half o3_eq1; rewrite Rmod1_ostro //.
@@ -996,10 +996,10 @@ have [orn2_eq0|/eqP orn2_neq0] := Z.eq_dec ('o[r, n]_2) 0%Z.
   have [orn3_eq0|/eqP orn3_neq0] := Z.eq_dec ('o[r, n]_3) 0%Z.
     rewrite Rmod1_ostro_Rabs_3p //.
     by apply: (@bound_left_big_alt n r).
- have [rLh|hLr] := Rle_lt_dec `{r} (/2).
+ have [rLh|hLr] := Rle_lt_dec `{r} (/ 2).
     have rLh' : `{r} < / 2.
-      suff : `{r} <> /2 by lra.
-      move=> rE; have : ~ irrational (/2).
+      suff : `{r} <> / 2 by lra.
+      move=> rE; have : ~ irrational (/ 2).
         by move=> /irrational_inv H1; case: (irrational_IZR 2).
       by rewrite -rE; have /irrational_frac := rI.
     rewrite Rmod1_ostro_Rabs_half2 //.
@@ -1023,17 +1023,25 @@ have [orn2_eq0|/eqP orn2_neq0] := Z.eq_dec ('o[r, n]_2) 0%Z.
   rewrite -Rmod1_halton_1 //.
     by rewrite denom_1 // Rmult_1_l; lra.
   by rewrite elt2_mhalf.
-have [rLh|hLr] := Rle_lt_dec (/2) `{r}.
+have [rLh|hLr] := Rle_lt_dec (/ 2) `{r}.
   suff rLh' : / 2 < `{r}.
     by case/eqP: orn2_neq0; apply: ostro2_mhalf.
-  suff : `{r} <> /2 by lra.
-  move=> rE; have : ~ irrational (/2).
+  suff : `{r} <> / 2 by lra.
+  move=> rE; have : ~ irrational (/ 2).
     by move=> /irrational_inv H1; case: (irrational_IZR 2).
   by rewrite -rE; have /irrational_frac := rI.
 have : (0 < 'bo[r, n])%nat by rewrite -ltnS; apply: ostro_bostro_le.
 rewrite leq_eqVlt => /orP[/eqP b_eq1|b_gt1]; last first.
   apply: Rle_trans (_ : 't[r]_2 <= _); first by apply: halton_le.
   by apply/Rlt_le/Rmod1_ostro_Rabs_half1.
-  
-Admitted.
-Search ('t[_]_ _) (`|_|).
+(* Don't know a more direct proof of this. I actually an instance of 
+   another proof of the theorem I want to proof. There should be a more
+   direct proof when bo[r,n] = 1 and `{r} < /2                       *)
+rewrite -b_eq1 -Rmod1_halton; last first.
+  have := ostro2_lt r n rI r_pos; have := ostro_bound r n 2 rI r_pos.
+  have /eqP := orn2_neq0; lia.
+suff : `|Z.of_nat n * r| >= `| 'q[r]_1 * r| by lra.
+apply: Rmod1_denom_lt.
+split; first by apply/(inj_lt 0)/ltP.
+have := bostro_bound r n rI; rewrite -b_eq1; lia.
+Qed.
