@@ -1,4 +1,5 @@
-From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun fintype bigop seq div.
+From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun fintype.
+From mathcomp Require Import bigop seq div.
 Require Import Reals.
 Require Import slater moreR.
 Import ssrnat.
@@ -40,7 +41,6 @@ Lemma nfracS a l : `|a :: l| =
 Proof. by []. Qed.
 
 Compute `|[:: 3%N]|.
-
 Compute `|[:: 3; 7; 15]|.
 
 Lemma nfrac_num_eq0 l : `|l|.1 = 0 -> 0 \in l.
@@ -205,7 +205,7 @@ rewrite -{2 3}[numq q]gez0_abs ?numq_ge0 //.
 rewrite -{2 4}[denq q]gez0_abs ?numq_ge0 //.
 rewrite -(natrD _ _ 1) !pmulrn -!intrM ler_int  ltr_int.
 rewrite -!PoszM lez_nat ltz_nat addn1.
-by rewrite leq_trunc_div ltn_ceil  // absz_gt0 denq_neq0.
+by rewrite leq_divM ltn_ceil  // absz_gt0 denq_neq0.
 Qed.
 
 Lemma floor_posE p (q : rat) : 

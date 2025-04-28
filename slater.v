@@ -421,7 +421,7 @@ have m1mLb: (m1 - m < b)%N.
   rewrite -[b](addnK m) ltn_sub2r //.
     by rewrite -{1}[m]add0n ltn_add2r lt0n.
   rewrite (leq_ltn_trans m1Ln) //.
-  by rewrite -[n](@subnK b) 1?addnC ?ltn_add2l // Lget_min.
+  by rewrite -[n](subnK (_ : b <= _)%N) 1?addnC ?ltn_add2l // Lget_min.
 rewrite -fracB; try lra; rewrite -aB 1?ltnW //.
 have m1mE : (m1 - m = (b - (b + m - m1)))%N.
   by rewrite subnBA ?subnDl // addnC -leq_subLR ltnW.
@@ -555,7 +555,7 @@ have m1mLb: (m1 - m < b)%N.
   rewrite -[b](addnK m) ltn_sub2r //.
     by rewrite -{1}[m]add0n ltn_add2r lt0n.
   rewrite (leq_ltn_trans m1Ln) //.
-  by rewrite -[n](@subnK b) 1?addnC ?ltn_add2l // Lget_min.
+  by rewrite -[n](subnK (_ : b <= _)%N) 1?addnC ?ltn_add2l // Lget_min.
 rewrite -fracB; try lra; rewrite -aB 1?ltnW //.
 have m1mE : (m1 - m = (b - (b + m - m1)))%N.
   by rewrite subnBA ?subnDl // addnC -leq_subLR ltnW.
@@ -705,7 +705,7 @@ have : \big[Rplus/0]_(i < n.+1) (`{(get_next n i)  * a} - `{i * a}) = 0.
 pose f i := `{get_next n i  * a} - `{i * a}.
 rewrite -[X in X = _](big_mkord xpredT f).
 have nbF : (0 <= (n - b).+1)%N by [].
-rewrite (big_cat_nat _ _ _ nbF) /=; last by rewrite ltnS leq_subr.
+rewrite (big_cat_nat nbF) /=; last by rewrite ltnS leq_subr.
 rewrite (eq_big_seq (fun _ => `{b * a})) => [/=|x]; last first.
   rewrite mem_index_iota /f /= ltnS => mLN.
   have xgLn : (x + b <= n)%N.
@@ -717,7 +717,7 @@ have ngLg : (n - b < B)%N.
   rewrite -[B](addnK b) ltn_sub2r //.
     by rewrite -[X in (X < _)%N]add0n ltn_add2r lt0n get_max_NZ.
   by rewrite addnC; apply:  LminDmax.
-rewrite (big_cat_nat _ _ _ ngLg) /=; last first.
+rewrite (big_cat_nat ngLg) /=; last first.
   by rewrite (leq_trans (Lget_max n)).
 rewrite (eq_big_seq (fun _ => `{b * a} + 1 - `{B * a})) => [/=|x]; last first.
   rewrite mem_index_iota /f => ngLxLg.

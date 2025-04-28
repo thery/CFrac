@@ -2,6 +2,7 @@ From HB Require Import structures.
 From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun fintype.
 From mathcomp Require Import  bigop.
 Require Import ZArith Znumtheory Lia.
+Declare Scope ring_scope.
 Delimit Scope ring_scope with RR.
 Open Scope Z_scope.
 

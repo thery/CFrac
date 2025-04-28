@@ -19,9 +19,9 @@ Continuous Fraction in Coq
 - Author(s):
   - Laurent Théry
 - License: [MIT License](LICENSE)
-- Compatible Coq versions: 8.18 or later
+- Compatible Coq versions: 8.20 or later
 - Additional dependencies:
-  - [MathComp ssreflect 2.2 or later](https://math-comp.github.io)
+  - [MathComp ssreflect 2.4 or later](https://math-comp.github.io)
   - Virtual package relying on a CSDP binary system installation
 - Coq namespace: `cfrac`
 - Related publication(s): none
