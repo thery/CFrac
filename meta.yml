@@ -24,9 +24,9 @@ license:
   fullname: MIT License
   identifier: MIT
 
-supported_coq_versions:
+supported_rocq_versions:
   text: '9.0 or later'
-  opam: '{(>= "8.20")}'
+  opam: '{(>= "9.0")}'
 
 dependencies:
 - opam:
@@ -41,7 +41,7 @@ dependencies:
     Virtual package relying on a CSDP binary system installation
 
 tested_coq_opam_versions:
-- version: '2.4.0-coq-8.20'
+- version: '2.4.0-rocq-9.0'
   repo: 'mathcomp/mathcomp'
 
 namespace: cfrac
