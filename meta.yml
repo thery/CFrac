@@ -26,7 +26,7 @@ license:
 
 supported_coq_versions:
   text: '9.0 or later'
-  opam: '{(>= "9.0")}'
+  opam: '{(>= "8.20")}'
 
 dependencies:
 - opam:
@@ -41,7 +41,7 @@ dependencies:
     Virtual package relying on a CSDP binary system installation
 
 tested_coq_opam_versions:
-- version: '2.4.0-coq-9.0'
+- version: '2.4.0-coq-8.20'
   repo: 'mathcomp/mathcomp'
 
 namespace: cfrac
