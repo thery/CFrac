@@ -1,7 +1,8 @@
-Require Import Reals Psatz.
+From Stdlib Require Import Reals Psatz.
 From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun. 
 From mathcomp Require Import fintype bigop seq.
-Require Import Zpower moreR fib.
+From Stdlib Require Import Zpower.
+Require Import moreR fib.
 
 (******************************************************************************)
 (* This file contains some basic notions of continued fraction :              *)
@@ -329,7 +330,7 @@ Lemma denom_gr_fib n : 'q[gr]_n = Z.of_nat (fib n).
 Proof.
 elim: n {-2}n (leqnn n) => [[]//| [IH [|[]] // |n IH] m].
 rewrite leq_eqVlt => /orP[/eqP->|/IH //].
-by rewrite fibSS denom_rec ?IH // gr_elt // addnE Nat2Z.inj_add; lia.
+by rewrite fibSS denom_rec ?IH // gr_elt // addnE Znat.Nat2Z.inj_add; lia.
 Qed.
 
 Lemma num_lt n r : 
@@ -1015,7 +1016,8 @@ have F4:  mu * nu <= 0.
   rewrite -mult_IZR; apply: (IZR_le _ 0).
   have : ~(mu < 0 /\ nu < 0)%Z by nia.
   have : ~(mu > 0 /\ nu > 0)%Z by nia.
-  clear; case: (Z_le_dec 0 mu); case : (Z_le_dec 0 nu); nia.
+  clear; case: (ZArith_dec.Z_le_dec 0 mu); 
+    case : (ZArith_dec.Z_le_dec 0 nu); nia.
 have F5 : 1 <= Rabs mu.
   have F5 : mu <> 0%Z by move=> HH; suff : (nu <> 0%Z); nia.
   by (have [/IZR_le|/IZR_le] /= : (1 <= mu \/ mu <= -1)%Z by lia);

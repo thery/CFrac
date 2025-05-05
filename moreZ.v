@@ -1,7 +1,7 @@
 From HB Require Import structures.
 From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun fintype.
 From mathcomp Require Import  bigop.
-Require Import ZArith Znumtheory Lia.
+From Stdlib Require Import ZArith Znumtheory Lia.
 Declare Scope ring_scope.
 Delimit Scope ring_scope with RR.
 Open Scope Z_scope.
@@ -41,9 +41,8 @@ have [[z2_spos|z2_neg]|<-] := Z_dec 0 z2; last 2 first.
 apply: Zdiv_le_upper_bound; [lia | nia].
 Qed.
 
-Lemma eqzP : Equality.axiom Zeq_bool.
-Proof.
-by move=> z1 z2; case: Zeq_bool (Zeq_bool_if z1 z2) => ?; apply: (iffP idP).
+Lemma eqzP : Equality.axiom Z.eqb.
+Proof. by move=> z1 z2; apply/(iffP idP) => /Z.eqb_eq.
 Qed.
 
 HB.instance Definition _ := hasDecEq.Build Z eqzP.

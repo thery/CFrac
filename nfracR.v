@@ -1,6 +1,6 @@
 From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun fintype.
 From mathcomp Require Import bigop seq div.
-Require Import Reals.
+From Stdlib Require Import Reals.
 Require Import slater moreR.
 Import ssrnat.
 

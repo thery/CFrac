@@ -1,8 +1,9 @@
 From HB Require Import structures.
-Require Import Reals Psatz.
+From Stdlib Require Import Reals Psatz.
 From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun fintype.
 From mathcomp Require Import bigop.
-Require Import Zpower Znumtheory moreZ.
+From Stdlib Require Import Zpower Znumtheory.
+Require Import moreZ.
 Delimit Scope ring_scope with RR.
 
 Open Scope R_scope.
@@ -438,14 +439,14 @@ have Ex : Z.even x.
   have := Z.even_mul x x.
   rewrite xxE.
   by rewrite -Zmult_assoc Z.even_mul /=; case: Z.even.
-have Ex1 : Zeven x by apply/Zeven_bool_iff.
-case: (Zeven_ex x Ex1) => x1 xE.
+have Ex1 : Zeven.Zeven x by apply/Zeven.Zeven_bool_iff.
+case: (Zeven.Zeven_ex x Ex1) => x1 xE.
 have Ey : Z.even y.
   have := Z.even_mul y y.
   have -> : (y * y = 2 * x1 * x1)%Z by lia.
   by rewrite -Zmult_assoc Z.even_mul /=; case: Z.even.
-have Ey1 : Zeven y by apply/Zeven_bool_iff.
-case: (Zeven_ex y Ey1) => y1 yE.
+have Ey1 : Zeven.Zeven y by apply/Zeven.Zeven_bool_iff.
+case: (Zeven.Zeven_ex y Ey1) => y1 yE.
 have [x_eq0|x_neq0] := Z.eq_dec x 0.
   have y_eq0 : y = 0%Z by lia.
   suff : sqrt 2 = 0 by lra.

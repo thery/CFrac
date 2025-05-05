@@ -5,7 +5,7 @@
 (*                                                                            *)
 (******************************************************************************)
 
-Require Import Reals Psatz.
+From Stdlib Require Import Reals Psatz.
 From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun fintype bigop.
 Require Import moreR.
 

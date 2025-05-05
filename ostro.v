@@ -1,7 +1,7 @@
-Require Import Reals Psatz.
+From Stdlib Require Import Reals Psatz.
 From mathcomp Require Import ssreflect ssrbool ssrnat eqtype ssrfun. 
 From mathcomp Require Import fintype bigop seq.
-Require Import Zpower.
+From Stdlib Require Import Zpower.
 Require Import moreR moreZ rfrac fib.
 Open Scope R_scope.
 
@@ -230,7 +230,7 @@ Lemma bostro_bound r n :
 Proof.
 move=> iR.  
 rewrite /bostro; case: arg_minnP => /=; last first.
-  move=> i /eqP /Zlt_is_lt_bool Hi Hf; split; last first.
+  move=> i /eqP /Zbool.Zlt_is_lt_bool Hi Hf; split; last first.
     by case: (i : nat) Hi => //=; rewrite denom_0; lia.
   have i1B : (i.-1 < n.+4)%nat.
   apply: leq_ltn_trans (leq_pred _) (ltn_ord i).
@@ -250,7 +250,7 @@ Lemma bostro_denom r n :
 Proof.
 move=> rI; case: n => //= [] [//|n] _.
 have := bostro_bound r (Z.to_nat ('q[r]_n.+2)) rI.
-rewrite Z2Nat.id; last by apply: denom_pos.
+rewrite Znat.Z2Nat.id; last by apply: denom_pos.
 set u := 'bo[_,_] => Hu.
 case: (ltngtP u n.+2) => // Hl ; last first.
   suff : ('q[r]_n.+2 <  'q[r]_u)%Z by lia.
@@ -334,7 +334,7 @@ rewrite -denom_2; last by apply: irrational_elt_neq_0.
 case: ('bo[_,_]) (bostro_bound r m) => // k /(_ rI) Hk _; rewrite subSS subn0.
 set u := nth _ _ _; suff : (0 <= u < 'q[r]_2)%Z by lia.
 have <- : (k.+2 - k = 2)%nat by rewrite -addn2 addnC addnK.
-apply: mko_list_le_q => //; split ; first by apply: Zle_0_nat.
+apply: mko_list_le_q => //; split ; first by apply: Zorder.Zle_0_nat.
 by lia.
 Qed.
 
@@ -400,7 +400,7 @@ Definition fnz_ostro r m : option 'I_'bo[r, m].+1 :=
 Lemma fnz_ostro_none r m : irrational r -> fnz_ostro r m = None -> m = 0%nat.
 Proof.
 move=> rI; rewrite /fnz_ostro; case: pickP => // Hf _.
-apply: Nat2Z.inj; rewrite (big_ostro r) // big1 //= => i _.
+apply: Znat.Nat2Z.inj; rewrite (big_ostro r) // big1 //= => i _.
 have [->|i_neq0] := Z.eq_dec ('o[r, m]_i.+1) 0; first by lia.
 have := Hf [arg min_(j < i | 'o[r, m]_j.+1 != 0%Z) j].
 case: arg_minnP => /=; first by apply/eqP.
@@ -1044,6 +1044,6 @@ rewrite -b_eq1 -Rmod1_halton; last first.
   have /eqP := orn2_neq0; lia.
 suff : `|Z.of_nat n * r| >= `| 'q[r]_1 * r| by lra.
 apply: Rmod1_denom_lt.
-split; first by apply/(inj_lt 0)/ltP.
+split; first by apply/(Znat.inj_lt 0)/ltP.
 have := bostro_bound r n rI; rewrite -b_eq1; lia.
 Qed.
