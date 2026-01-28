@@ -10,14 +10,14 @@ dev-repo: "git+https://github.com/thery/cfrac.git"
 bug-reports: "https://github.com/thery/cfrac/issues"
 license: "MIT"
 
-synopsis: "Continuous Fraction in Coq"
+synopsis: "Continuous Fraction in Rocq"
 description: """
-Continuous Fraction in Coq"""
+Continuous Fraction in RocqS"""
 
 build: [make "-j%{jobs}%"]
 install: [make "install"]
 depends: [
-  "coq" {(>= "9.1")}
+  "coq" 
   "coq-mathcomp-ssreflect" {(>= "2.5.0")}
 ]
 

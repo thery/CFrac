@@ -12,14 +12,13 @@ Follow the instructions on https://github.com/coq-community/templates to regener
 
 
 
-Continuous Fraction in Coq
+Continuous Fraction in RocqS
 
 ## Meta
 
 - Author(s):
   - Laurent Théry
 - License: [MIT License](LICENSE)
-- Compatible Rocq/Coq versions: 9.1 or later
 - Additional dependencies:
   - [MathComp ssreflect 2.5 or later](https://math-comp.github.io)
 - Rocq/Coq namespace: `cfrac`
