@@ -19,6 +19,7 @@ install: [make "install"]
 depends: [
   "coq" 
   "rocq-mathcomp-ssreflect" {(>= "2.5.0")}
+  "conf-csdp" {(>= "1")}
 ]
 
 tags: [

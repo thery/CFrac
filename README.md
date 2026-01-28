@@ -21,6 +21,7 @@ Continuous Fraction in Rocq
 - License: [MIT License](LICENSE)
 - Additional dependencies:
   - [MathComp ssreflect 2.5 or later](https://math-comp.github.io)
+  - 
 - Rocq/Coq namespace: `cfrac`
 - Related publication(s): none
 
