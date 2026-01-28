@@ -12,7 +12,7 @@ Follow the instructions on https://github.com/coq-community/templates to regener
 
 
 
-Continuous Fraction in RocqS
+Continuous Fraction in Rocq
 
 ## Meta
 

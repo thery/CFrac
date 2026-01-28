@@ -9,7 +9,7 @@ action: true
 synopsis: Continuous Fraction in Rocq
 
 description: |-
-  Continuous Fraction in RocqS
+  Continuous Fraction in Rocq
 
 authors:
 - name: Laurent Théry
@@ -30,7 +30,7 @@ supported_rocq_versions:
 
 dependencies:
 - opam:
-    name: coq-mathcomp-ssreflect
+    name: rocq-mathcomp-ssreflect
     version: '{(>= "2.5.0")}'
   description: |-
     [MathComp ssreflect 2.5 or later](https://math-comp.github.io)

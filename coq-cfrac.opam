@@ -12,13 +12,13 @@ license: "MIT"
 
 synopsis: "Continuous Fraction in Rocq"
 description: """
-Continuous Fraction in RocqS"""
+Continuous Fraction in Rocq"""
 
 build: [make "-j%{jobs}%"]
 install: [make "install"]
 depends: [
   "coq" 
-  "coq-mathcomp-ssreflect" {(>= "2.5.0")}
+  "rocq-mathcomp-ssreflect" {(>= "2.5.0")}
 ]
 
 tags: [
